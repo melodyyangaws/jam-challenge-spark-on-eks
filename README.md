@@ -9,7 +9,6 @@ A project for a solution - SQL based ETL with a declarative framework powered by
 
 #### Table of Contents
 * [Prerequisites](#Prerequisites) 
-* [Deploy CFN](#Deploy-CFN)
 * [Customization](#Customization)
 * [Post Deployment](#Post-Deployment)
   * [Install command tool](#Install-command-tool)
@@ -33,19 +32,6 @@ git clone https://github.com/aws-samples/sql-based-etl-on-amazon-eks.git
 cd sql-based-etl-on-amazon-eks
 ```
 
-## Deploy CFN
-
-**Deployment Time**: about 30 minutes
-
-  |   Region  |   Launch Template |
-  |  ---------------------------   |   -----------------------  |
-  |  ---------------------------   |   -----------------------  |
-  **US East (N. Virginia)**| [![Deploy to AWS](images/00-deploy-to-aws.png)](https://console.aws.amazon.com/cloudformation/home?region=us-east-1#/stacks/quickcreate?stackName=SparkOnEKS&templateURL=https://blogpost-sparkoneks-us-east-1.s3.amazonaws.com/blog/v1.0.0/SparkOnEKS.template) 
-
-* Option1: Deploy with default (recommended). Check out the **Customization** session to deploy in a different region. 
-
-* Option2: Fill in the parameter `jhubuser` if use your choice of username to login JupyterHub.
-
 ## Customization
 
 Build your own solution on top of the project, for example reconfigure the Jupyter notebook, or regenerate the CloudFormation for your region: 
@@ -54,7 +40,7 @@ export BUCKET_NAME_PREFIX=aws-jam-challenge-resources
 export SOLUTION_NAME=spark-on-eks-made-easy
 
 # go to the project directory
-cd sql-based-etl_jamChallenge
+cd jam-challenge-spark-on-eks
 ./deployment/build-s3-dist.sh $BUCKET_NAME_PREFIX $SOLUTION_NAME
 
 # go to CFN console, convert json templates to yaml file, finally sync yaml files
@@ -66,7 +52,7 @@ aws s3 sync . s3://aws-jam-challenge-resources/spark-on-eks-made-easy
 
 ### Install command tool
 ```bash
-cd sql-based-etl_jamChallenge
+cd jam-challenge-spark-on-eks
 ./deployment/post-deployment.sh
 ```
 
