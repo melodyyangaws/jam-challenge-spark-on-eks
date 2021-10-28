@@ -49,7 +49,7 @@ class SparkOnEksStack(core.Stack):
         self.app_s3 = S3AppCodeConst(self,'appcode')
 
         # 1. Setup EKS base infrastructure
-        network_sg = NetworkSgConst(self,'network-sg', eksname, self.app_s3.code_bucket)
+        network_sg = NetworkSgConst(self,'network-sg', eksname)
         iam = IamConst(self,'iam_roles', eksname)
         eks_cluster = EksConst(self,'eks_cluster', eksname, network_sg.vpc, iam.managed_node_role, iam.admin_role)
         EksSAConst(self, 'eks_sa', eks_cluster.my_cluster, jhub_secret)
@@ -87,7 +87,7 @@ class SparkOnEksStack(core.Stack):
                 fields= {
                     "{{MY_SA}}": app_security.jupyter_sa,
                     "{{REGION}}": core.Aws.REGION, 
-                    "{{SECRET_NAME}}": name_no_suffix
+                    "{{SECRET_NAME}}": name_parts
                 }, 
                 multi_resource=True)
         )

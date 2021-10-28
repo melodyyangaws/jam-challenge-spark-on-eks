@@ -7,6 +7,7 @@
     "@aws-cdk/core:enableStackNameDuplicates": "true",
     "aws-cdk:enableDiffNoFail": "true",
     "@aws-cdk/core:stackRelativeExports": "true",
-    "@aws-cdk/core:newStyleStackSynthesis": "true"
+    "@aws-cdk/core:newStyleStackSynthesis": "true",
+    "@aws-cdk/aws-secretsmanager:parseOwnedSecretName": "true"
   }
 }
