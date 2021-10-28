@@ -65,8 +65,8 @@ singleuser:
           - "-c"
           - >
             cp -r /opt/.jupyter $HOME/.jupyter;
-            echo "git clone https://github.com/a140262/spark-on-amazon-eks.git";
-            git clone https://github.com/a140262/spark-on-amazon-eks.git;
+            echo "git clone https://github.com/melodyyangaws/sql-based-etl.git";
+            git clone https://github.com/melodyyangaws/sql-based-etl.git;
 
   serviceAccountName: "{username}"
   cpu:

@@ -79,15 +79,15 @@ class SparkOnEksStack(core.Stack):
         jhub_install.node.add_dependency(base_app.alb_created)
 
         # get Arc Jupyter login from secrets manager
-        name_parts= core.Fn.split('-',jhub_secret.secret_name)
-        name_no_suffix=core.Fn.join('-',[core.Fn.select(0, name_parts), core.Fn.select(1, name_parts)])
+        # name_parts= core.Fn.split('-',jhub_secret.secret_name)
+        # name_no_suffix=core.Fn.join('-',[core.Fn.select(0, name_parts), core.Fn.select(1, name_parts)])
         config_hub = eks.KubernetesManifest(self,'JHubConfig',
             cluster=eks_cluster.my_cluster,
             manifest=load_yaml_replace_var_local(source_dir+'/app_resources/jupyter-config.yaml', 
                 fields= {
                     "{{MY_SA}}": app_security.jupyter_sa,
                     "{{REGION}}": core.Aws.REGION, 
-                    "{{SECRET_NAME}}": name_parts
+                    "{{SECRET_NAME}}": jhub_secret.secret_name
                 }, 
                 multi_resource=True)
         )

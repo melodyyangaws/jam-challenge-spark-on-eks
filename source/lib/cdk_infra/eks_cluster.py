@@ -31,7 +31,6 @@ class EksConst(core.Construct):
         # 2.Add Managed NodeGroup to EKS, compute resource to run Spark jobs
         _managed_node = self._my_cluster.add_nodegroup_capacity('onDemand-mn',
             nodegroup_name = 'etl-ondemand',
-            ami_type = eks.NodegroupAmiType.AL2_X86_64,
             node_role = noderole,
             desired_size = 1,
             max_size = 5,
@@ -46,7 +45,6 @@ class EksConst(core.Construct):
         # 3. Add Spot managed NodeGroup to EKS (Run Spark exectutor on spot)
         _spot_node = self._my_cluster.add_nodegroup_capacity('spot-mn',
             nodegroup_name = 'etl-spot',
-            ami_type = eks.NodegroupAmiType.AL2_X86_64,
             node_role = noderole,
             desired_size = 1,
             max_size = 30,

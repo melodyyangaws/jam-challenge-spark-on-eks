@@ -67,11 +67,11 @@ class EksBaseAppConst(core.Construct):
                 }
             )
         )
-        # # Add Spark Operator to EKS
-        # eks_cluster.add_helm_chart('SparkOperatorChart',
-        #     chart='spark-operator',
-        #     repository='https://googlecloudplatform.github.io/spark-on-k8s-operator',
-        #     release='spark-operator',
-        #     create_namespace=True,
-        #     values=load_yaml_replace_var_local(source_dir+'/app_resources/spark-operator-values.yaml',fields={'':''})
-        # )
+        # Add Spark Operator to EKS
+        eks_cluster.add_helm_chart('SparkOperatorChart',
+            chart='spark-operator',
+            repository='https://googlecloudplatform.github.io/spark-on-k8s-operator',
+            release='spark-operator',
+            create_namespace=True,
+            values=load_yaml_replace_var_local(source_dir+'/app_resources/spark-operator-values.yaml',fields={'':''})
+        )
