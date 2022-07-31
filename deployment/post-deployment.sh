@@ -6,30 +6,22 @@
 
 export stack_name="${1:-SparkOnEKS}"
 
-echo "========================================================================="
-echo "  Make sure your CloudFormation stack name $stack_name is correct. "
-echo "  If you use a different name, rerun the script with a parameter:"
-echo "      ./deployment/post-deployment.sh <stack_name> "
-echo "========================================================================="
+# 1. install command line tools 
+sudo yum -y -q install jq
 
-# 1. install k8s command tools 
-echo -e "\ninstall kubectl tool..."
+echo -e "\nInstall kubectl tool on Linux ..."
 curl -o kubectl https://amazon-eks.s3.us-west-2.amazonaws.com/1.19.6/2021-01-05/bin/linux/amd64/kubectl
 chmod +x kubectl
 mkdir -p $HOME/bin && mv kubectl $HOME/bin/kubectl && export PATH=$PATH:$HOME/bin
 
-echo "================================================================================================"
-echo " Installing argoCLI tool on Linux ..."
-echo " Check out https://github.com/argoproj/argo-workflows/releases for other OS type installation."
-echo "================================================================================================"
-VERSION=v3.0.2
-sudo curl -sLO https://github.com/argoproj/argo-workflows/releases/download/${VERSION}/argo-linux-amd64.gz && gunzip argo-linux-amd64.gz
-chmod +x argo-linux-amd64 && sudo mv ./argo-linux-amd64 /usr/local/bin/argo
-argo version --short
+echo -e "\nInstalling eksctl tool on Linux ..."
+curl --silent --location "https://github.com/weaveworks/eksctl/releases/latest/download/eksctl_$(uname -s)_amd64.tar.gz" | tar xz -C /tmp
+sudo mv /tmp/eksctl /usr/local/bin
+eksctl version
 
 # 2. connect to the EKS newly created
 echo `aws cloudformation describe-stacks --stack-name $stack_name --query "Stacks[0].Outputs[?starts_with(OutputKey,'eksclusterEKSConfig')].OutputValue" --output text` | bash
-echo -e "\ntest EKS connection..."
+echo -e "\nTest EKS connection..."
 kubectl get svc
 
 # 3. get Jupyter Hub login

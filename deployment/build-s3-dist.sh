@@ -27,7 +27,7 @@
 #  - version-code: version of the package
 
 # Important: CDK global version number
-cdk_version===1.96.0
+cdk_version===2.12.0
 
 # Check to see if the required parameters have been provided:
 if [ -z "$1" ] || [ -z "$2" ]; then
@@ -67,6 +67,8 @@ echo "--------------------------------------------------------------------------
 echo "cd $template_dir/deployment/cdk-solution-helper"
 cd $template_dir/deployment/cdk-solution-helper
 echo "npm install"
+npm i --package-lock-only
+npm audit fix
 npm install
 
 cd $template_dir
@@ -83,6 +85,8 @@ echo "--------------------------------------------------------------------------
 
 # # Install the global aws-cdk package
 echo "npm install -g aws-cdk@$cdk_version"
+npm i --package-lock-only
+npm audit fix
 npm install aws-cdk@$cdk_version
 
 # Run 'cdk synth' to generate raw solution outputs
@@ -169,8 +173,8 @@ for d in `find . -mindepth 1 -maxdepth 1 -type d`; do
         pip3 install --upgrade -q $source_dir --target $venv_folder/lib/python3.*/site-packages
         deactivate
         echo "package python artifact"
-        cd $staging_dist_dir/$fname/$venv_folder/lib/python3.*/site-packages
-        zip -qr9 $staging_dist_dir/$fname.zip .
+        cd $venv_folder/lib/python3.*/site-packages
+        zip -qr9 $staging_dist_dir/$fname.zip . -x "aws_cdk/*"
         echo "zip -r $staging_dist_dir/$fname"
         cd $staging_dist_dir/$fname
         rm -rf $venv_folder
@@ -181,7 +185,9 @@ for d in `find . -mindepth 1 -maxdepth 1 -type d`; do
         echo "This is Node runtime"
         echo "===================================="
         echo "Clean and rebuild artifacts"
-        npm run clean
+        npm i --package-lock-only
+        npm audit fix
+        npm run
         npm ci
         if [ "$?" = "1" ]; then
 	        echo "ERROR: Seems like package-lock.json does not exists or is out of sync with package.josn. Trying npm install instead" 1>&2

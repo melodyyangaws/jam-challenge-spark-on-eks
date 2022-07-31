@@ -26,14 +26,7 @@ then
 	aws athena start-query-execution --query-string "DROP TABLE default.deltalake_contact_jhub" --result-configuration OutputLocation=s3://$code_bucket/athena-query-result
 fi
 
-argoALB=$(aws elbv2 describe-load-balancers --query 'LoadBalancers[?starts_with(DNSName,`k8s-argo`)==`true`].LoadBalancerArn' --output text)
 jhubALB=$(aws elbv2 describe-load-balancers --query 'LoadBalancers[?starts_with(DNSName,`k8s-jupyter`)==`true`].LoadBalancerArn' --output text)
-if ! [ -z "$argoALB" ]
-then
-	echo "Delete Argo ALB"
-	aws elbv2 delete-load-balancer --load-balancer-arn $argoALB
-	sleep 5
-fi	
 if ! [ -z "$jhubALB" ]
 then
 	echo "Delete Jupyter ALB"
@@ -41,14 +34,7 @@ then
 	sleep 5
 fi
 
-argoTG=$(aws elbv2 describe-target-groups --query 'TargetGroups[?starts_with(TargetGroupName,`k8s-argo`)==`true`].TargetGroupArn' --output text)
 jhubTG=$(aws elbv2 describe-target-groups --query 'TargetGroups[?starts_with(TargetGroupName,`k8s-jupyter`)==`true`].TargetGroupArn' --output text)
-if ! [ -z "$argoTG" ]
-then
-	sleep 5
-	echo "Delete Argo Target groups"
-	aws elbv2 delete-target-group --target-group-arn $argoTG 
-fi	
 if ! [ -z "$jhubTG" ]
 then
 	sleep 5

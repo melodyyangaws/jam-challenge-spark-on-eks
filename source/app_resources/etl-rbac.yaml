@@ -16,13 +16,6 @@ rules:
   - apiGroups: [""]
     resources: ["persistentvolumeclaims"]
     verbs: ["create", "delete", "get", "list"]
-  - apiGroups: ["argoproj.io"]
-    resources: ["workflows","workflows/finalizers"]
-    verbs: ["*"]
-  - apiGroups: ["argoproj.io"]
-    resources: ["workflowtemplates","workflowtemplates/finalizers"]
-    verbs: ["get", "list", "watch"]
-    
   
 ---
 kind: RoleBinding

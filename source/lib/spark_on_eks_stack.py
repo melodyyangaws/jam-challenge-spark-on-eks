@@ -1,11 +1,8 @@
 # // Copyright Amazon.com, Inc. or its affiliates. All Rights Reserved.
 # // SPDX-License-Identifier: MIT-0
 
-from aws_cdk import (
-    core, 
-    aws_eks as eks,
-    aws_secretsmanager as secmger
-)
+from aws_cdk import (Stack, Aws, Fn, CfnParameter, aws_eks as eks,aws_secretsmanager as secmger)
+from constructs import Construct
 from lib.cdk_infra.network_sg import NetworkSgConst
 from lib.cdk_infra.iam_roles import IamConst
 from lib.cdk_infra.eks_cluster import EksConst
@@ -16,7 +13,7 @@ from lib.cdk_infra.spark_permission import SparkOnEksSAConst
 from lib.util.manifest_reader import *
 import json,os
 
-class SparkOnEksStack(core.Stack):
+class SparkOnEksStack(Stack):
 
     @property
     def code_bucket(self):
@@ -26,13 +23,13 @@ class SparkOnEksStack(core.Stack):
     def jhub_url(self):
         return self._jhub_alb.value
 
-    def __init__(self, scope: core.Construct, id: str, eksname: str, **kwargs) -> None:
+    def __init__(self, scope: Construct, id: str, eksname: str, **kwargs) -> None:
         super().__init__(scope, id, **kwargs)
 
         source_dir=os.path.split(os.environ['VIRTUAL_ENV'])[0]+'/source'
 
         # Cloudformation input params
-        login_name = core.CfnParameter(self, "jhubuser", type="String",
+        login_name = CfnParameter(self, "jhubuser", type="String",
             description="Your username login to jupyter hub",
             default="sparkoneks"
         )
@@ -73,20 +70,18 @@ class SparkOnEksStack(core.Stack):
             values=load_yaml_replace_var_local(source_dir+'/app_resources/jupyter-values.yaml', 
                 fields={
                     "{{codeBucket}}": self.app_s3.code_bucket,
-                    "{{region}}": core.Aws.REGION
+                    "{{region}}": Aws.REGION
                 })
         )
         jhub_install.node.add_dependency(base_app.alb_created)
 
         # get Arc Jupyter login from secrets manager
-        # name_parts= core.Fn.split('-',jhub_secret.secret_name)
-        # name_no_suffix=core.Fn.join('-',[core.Fn.select(0, name_parts), core.Fn.select(1, name_parts)])
         config_hub = eks.KubernetesManifest(self,'JHubConfig',
             cluster=eks_cluster.my_cluster,
             manifest=load_yaml_replace_var_local(source_dir+'/app_resources/jupyter-config.yaml', 
                 fields= {
                     "{{MY_SA}}": app_security.jupyter_sa,
-                    "{{REGION}}": core.Aws.REGION, 
+                    "{{REGION}}": Aws.REGION, 
                     "{{SECRET_NAME}}": jhub_secret.secret_name
                 }, 
                 multi_resource=True)
@@ -94,24 +89,6 @@ class SparkOnEksStack(core.Stack):
         config_hub.node.add_dependency(jhub_install)
         config_hub.node.add_dependency(app_security)
 
-        # 4. Install ETL orchestrator - Argo
-        # can be replaced by other workflow tool, ie. Airflow
-        argo_install = eks_cluster.my_cluster.add_helm_chart('ARGOChart',
-            chart='argo-workflows',
-            repository='https://argoproj.github.io/argo-helm',
-            release='argo',
-            version='0.1.4',
-            namespace='argo',
-            create_namespace=True,
-            values=load_yaml_local(source_dir+'/app_resources/argo-values.yaml')
-        )
-        argo_install.node.add_dependency(config_hub)
-        # Create a Spark workflow template with different T-shirt size
-        submit_tmpl = eks_cluster.my_cluster.add_manifest('SubmitSparkWrktmpl',
-            load_yaml_local(source_dir+'/app_resources/spark-template.yaml')
-        )
-        submit_tmpl.node.add_dependency(argo_install)
-   
         # 5.(OPTIONAL) retrieve ALB DNS Name to enable Cloudfront in the following nested stack.
         # Recommend to remove the CloudFront component
         # Setup your TLS certificate with your own domain name.
