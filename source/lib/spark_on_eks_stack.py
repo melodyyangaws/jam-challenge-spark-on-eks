@@ -1,7 +1,7 @@
 # // Copyright Amazon.com, Inc. or its affiliates. All Rights Reserved.
 # // SPDX-License-Identifier: MIT-0
 
-from aws_cdk import (Stack, Aws, Fn, CfnParameter, aws_eks as eks,aws_secretsmanager as secmger)
+from aws_cdk import (Stack, Aws, RemovalPolicy,aws_cloud9 as cloud9, CfnParameter, aws_eks as eks,aws_secretsmanager as secmger)
 from constructs import Construct
 from lib.cdk_infra.network_sg import NetworkSgConst
 from lib.cdk_infra.iam_roles import IamConst
@@ -48,7 +48,7 @@ class SparkOnEksStack(Stack):
         # 1. Setup EKS base infrastructure
         network_sg = NetworkSgConst(self,'network-sg', eksname)
         iam = IamConst(self,'iam_roles', eksname)
-        eks_cluster = EksConst(self,'eks_cluster', eksname, network_sg.vpc, iam.managed_node_role, iam.admin_role)
+        eks_cluster = EksConst(self,'eks_cluster', eksname, network_sg.vpc, iam.managed_node_role, iam.admin_role, iam.emr_svc_role)
         EksSAConst(self, 'eks_sa', eks_cluster.my_cluster, jhub_secret)
         base_app=EksBaseAppConst(self, 'eks_base_app', eks_cluster.my_cluster)
 
@@ -100,4 +100,3 @@ class SparkOnEksStack(Stack):
             object_namespace='jupyter'
         )
         self._jhub_alb.node.add_dependency(config_hub)
-

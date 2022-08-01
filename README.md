@@ -13,8 +13,6 @@ A project for a solution - SQL based ETL with a declarative framework powered by
 * [Post Deployment](#Post-Deployment)
   * [Install command tool](#Install-command-tool)
   * [Test job in Jupyter notebook](#test-job-in-Jupyter-notebook)
-  * [Submit job on Argo UI](#Submit-job-on-argo-ui)
-  * [Submit job via Argo CLI](#Submit-job-via-argo-cli)
   * [Submit a native Spark job](#Submit-a-native-Spark-job-with-Spark-Operator)
     * [Execute a PySpark job](#Execute-a-PySpark-job)
     * [Self-recovery test](#Self-recovery-test)
@@ -238,8 +236,6 @@ If you are concerned about the job performance, simply fit it into a single AZ b
 
 [*^ back to top*](#Table-of-Contents)
 ## Useful Commands
- * `argo submit source/example/nyctaxi-job-scheduler.yaml`  submit a spark job via Argo
- * `argo list --all-namespaces`                       show all jobs scheduled via Argo
  * `kubectl get pod -n spark`                         list running Spark jobs
  * `kubectl delete pod --all -n spark`                delete all Spark jobs
  * `kubectl apply -f source/app_resources/spark-template.yaml` create a reusable Spark job template

@@ -5,6 +5,7 @@
     Resource:
     - arn:aws:s3:::{{codeBucket}}
     - arn:aws:s3:::nyc-tlc
+    - arn:aws:s3:::amazon-reviews-pds
   - Effect: Allow
     Action:
     - s3:PutObject
@@ -12,11 +13,20 @@
     Resource:
     - arn:aws:s3:::{{codeBucket}}/*
     - arn:aws:s3:::nyc-tlc/*
+    - arn:aws:s3:::amazon-reviews-pds/*
   - Effect: Allow
     Action:
     - s3:DeleteObject
     Resource:
     - arn:aws:s3:::{{codeBucket}}/*
+  - Effect: Allow
+    Action:
+    - logs:PutLogEvents
+    - logs:CreateLogStream
+    - logs:DescribeLogGroups
+    - logs:DescribeLogStreams
+    Resource:
+    - arn:aws:logs:*:*:*  
   - Effect: Allow
     Action:
     - kms:Decrypt
