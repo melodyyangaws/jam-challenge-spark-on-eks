@@ -1,0 +1,57 @@
+apiVersion: "sparkoperator.k8s.io/v1beta2"
+kind: SparkApplication
+metadata:
+  name: word-count
+  namespace: spark
+spec:
+  type: Python
+  mode: cluster
+  image: ghcr.io/tripl-ai/arc:arc_3.11.1_spark_3.1.2_scala_2.12_hadoop_3.2.0_1.0.0
+  mainApplicationFile: "s3a://$(BUCKET_PARAM)/app_code/job/wordcount.py"
+  arguments: ["s3a://amazon-reviews-pds/parquet/","s3a://$(BUCKET_PARAM)/app_code/output/native"]
+  sparkVersion: "3.1.2"
+  sparkConf:
+    "spark.hadoop.fs.s3a.impl": "org.apache.hadoop.fs.s3a.S3AFileSystem"
+    "spark.hadoop.fs.s3a.aws.credentials.provider": "com.amazonaws.auth.WebIdentityTokenCredentialsProvider"
+    "spark.kubernetes.allocation.batch.size": "15"
+  dynamicAllocation:
+    enabled: true
+    minExecutors: 1
+    maxExecutors: 30
+  driver:
+    # driver run on OnDemand
+    affinity:
+      nodeAffinity:
+        requiredDuringSchedulingIgnoredDuringExecution:  
+          nodeSelectorTerms:
+            - matchExpressions:
+              - key: lifecycle
+                operator: In 
+                values: 
+                - OnDemand    
+    env:
+      - name: BUCKET_PARAM
+        valueFrom:
+          configMapKeyRef:
+            name: special-config
+            key: appcodeBucket
+    cores: 1
+    memory: "1G"
+    labels:
+      role: driver
+    serviceAccount: nativejob
+  executor:
+   # executors run on Spot
+    affinity:
+      nodeAffinity:
+        requiredDuringSchedulingIgnoredDuringExecution:     
+          nodeSelectorTerms:
+            - matchExpressions:
+              - key: lifecycle
+                operator: In 
+                values: 
+                - Ec2Spot    
+    cores: 1
+    memory: "4G"
+    labels:
+      role: executor

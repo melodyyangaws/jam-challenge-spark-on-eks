@@ -89,6 +89,24 @@ class SparkOnEksStack(Stack):
         config_hub.node.add_dependency(jhub_install)
         config_hub.node.add_dependency(app_security)
 
+        # 4. Install ETL orchestrator - Argo
+        # can be replaced by other workflow tool, ie. Airflow
+        argo_install = eks_cluster.my_cluster.add_helm_chart('ARGOChart',
+            chart='argo-workflows',
+            repository='https://argoproj.github.io/argo-helm',
+            release='argo',
+            version='0.1.4',
+            namespace='argo',
+            create_namespace=True,
+            values=load_yaml_local(source_dir+'/app_resources/argo-values.yaml')
+        )
+        argo_install.node.add_dependency(config_hub)
+        # Create a Spark workflow template with different T-shirt size
+        submit_tmpl = eks_cluster.my_cluster.add_manifest('SubmitSparkWrktmpl',
+            load_yaml_local(source_dir+'/app_resources/spark-template.yaml')
+        )
+        submit_tmpl.node.add_dependency(argo_install)
+
         # 5.(OPTIONAL) retrieve ALB DNS Name to enable Cloudfront in the following nested stack.
         # Recommend to remove the CloudFront component
         # Setup your TLS certificate with your own domain name.
