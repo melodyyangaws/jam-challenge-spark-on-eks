@@ -7,7 +7,7 @@ spec:
   type: Python
   mode: cluster
   image: ghcr.io/tripl-ai/arc:arc_3.11.1_spark_3.1.2_scala_2.12_hadoop_3.2.0_1.0.0
-  mainApplicationFile: "s3a://$(BUCKET_PARAM)/app_code/job/wordcount.py"
+  mainApplicationFile: "s3a://$(BUCKET_PARAM)/wordcount.py"
   arguments: ["s3a://amazon-reviews-pds/parquet/","s3a://$(BUCKET_PARAM)/app_code/output/native"]
   sparkVersion: "3.1.2"
   sparkConf:
@@ -16,7 +16,6 @@ spec:
     "spark.kubernetes.allocation.batch.size": "15"
   dynamicAllocation:
     enabled: true
-    minExecutors: 1
     maxExecutors: 30
   driver:
     # driver run on OnDemand
@@ -52,6 +51,6 @@ spec:
                 values: 
                 - Ec2Spot    
     cores: 1
-    memory: "4G"
+    memory: "6G"
     labels:
       role: executor
