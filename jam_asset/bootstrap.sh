@@ -31,7 +31,6 @@ result=$(aws cloud9 create-environment-ec2 \
 --instance-type t3.small \
 --automatic-stop-time-minutes 120 \
 --subnet-id ${jam_pubsubnet} \
---image-id amazonlinux-2-x86_64 \
 --owner-arn ${owner} --output text)
 echo "cloud9 env $result is created"
 
