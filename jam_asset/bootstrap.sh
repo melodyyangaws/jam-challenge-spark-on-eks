@@ -14,15 +14,6 @@ echo "export AWS_REGION=${AWS_REGION}" | tee -a ~/.bash_profile
 aws configure set default.region ${AWS_REGION}
 aws configure get default.region
 
-# Deploy CFN
-export BUCKET_NAME=sparklab-$ACCOUNT_ID-$AWS_REGION
-aws cloudformation deploy \
---stack-name SparkOnEKS \
---template-file /tmp/sparkoneks.yaml \
---s3-bucket $BUCKET_NAME \
---region $AWS_REGION \
---capabilities CAPABILITY_NAMED_IAM
-
 # Spin up a Cloud9 environment
 jam_pubsubnet=$(aws ec2 describe-subnets --filters Name=tag:Name,Values="jam Public Subnet (AZ2)" --query "Subnets[*].SubnetId" --output text)
 lab_role=$(aws iam list-roles --query 'Roles[?starts_with(RoleName,`AWSLabsUser-`)==`true`].RoleName' --output text)
@@ -43,6 +34,15 @@ result=$(aws cloud9 create-environment-ec2 \
 --image-id amazonlinux-2-x86_64 \
 --owner-arn ${owner} --output text)
 echo "cloud9 env $result is created"
+
+# Deploy CFN
+export BUCKET_NAME=sparklab-$ACCOUNT_ID-$AWS_REGION
+aws cloudformation deploy \
+--stack-name SparkOnEKS \
+--template-file /tmp/sparkoneks.yaml \
+--s3-bucket $BUCKET_NAME \
+--region $AWS_REGION \
+--capabilities CAPABILITY_NAMED_IAM
 
 # Set the output S3 bucket in Athena
 app_code_bucket=$(aws s3api list-buckets  --query 'Buckets[?starts_with(Name,`sparkoneks-appcode`)==`true`].Name' --output text)

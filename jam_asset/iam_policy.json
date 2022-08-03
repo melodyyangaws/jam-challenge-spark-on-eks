@@ -1,0 +1,202 @@
+{
+    "Version": "2012-10-17",
+    "Statement": [
+        {
+            "Sid": "1",
+            "Effect": "Allow",
+            "Action": [
+                "eks:ListNodegroups",
+                "eks:DescribeFargateProfile",
+                "eks:ListTagsForResource",
+                "eks:ListFargateProfiles",
+                "eks:DescribeNodegroup",
+                "eks:ListUpdates",
+                "eks:DescribeUpdate",
+                "eks:DescribeCluster",
+                "eks:ListClusters",
+              	"eks:AccessKubernetesApi",
+                "cloudwatch:*",
+                "logs:*",
+                "cloud9:*",
+                "ec2:DescribeVpcs",
+                "ec2:DescribeSubnets",
+                "cloudformation:ListStacks",
+                "secretsmanager:ListSecrets",
+              	"secretsmanager:GetSecretValue",
+              	"athena:UpdateWorkGroup"
+            ],
+            "Resource": "*"
+        },
+        {
+            "Sid": "2",
+            "Effect": "Allow",
+            "Action": [
+                "iam:GetRole",
+                "iam:GetPolicyVersion",
+                "iam:GetPolicy",
+                "iam:PutRolePermissionsBoundary",
+                "iam:ListEntitiesForPolicy",
+                "iam:ListInstanceProfilesForRole",
+                "iam:GetServiceLinkedRoleDeletionStatus",
+                "iam:ListPolicyVersions",
+                "iam:ListAttachedRolePolicies",
+                "iam:UpdateRole",
+                "iam:CreatePolicyVersion",
+                "iam:ListRolePolicies",
+                "iam:GetRolePolicy",
+                "iam:AttachRolePolicy"
+            ],
+            "Resource": [
+                "arn:aws:iam::*:policy/*",
+                "arn:aws:iam::*:role/spark-on-eks*"
+            ]
+        },
+        {
+            "Sid": "3",
+            "Effect": "Allow",
+            "Action": [
+                "iam:ListPolicies",
+                "iam:GenerateCredentialReport",
+                "iam:GetServiceLastAccessedDetailsWithEntities",
+                "iam:GenerateServiceLastAccessedDetails",
+                "iam:ListPoliciesGrantingServiceAccess",
+                "iam:ListAccountAliases",
+                "iam:ListRoles",
+                "iam:GetServiceLastAccessedDetails",
+                "iam:GetAccountSummary",
+                "iam:GetUser",
+                "iam:ListUsers"
+            ],
+            "Resource": "*"
+        },
+         {
+            "Sid": "allowEmrOnEks",
+            "Effect": "Allow",
+            "Action": [
+                "emr-containers:CreateVirtualCluster",
+                "emr-containers:ListVirtualClusters",
+                "emr-containers:DescribeVirtualCluster",
+                "emr-containers:DeleteVirtualCluster",
+              	"emr-containers:StartJobRun",
+                "emr-containers:ListJobRuns",
+                "emr-containers:DescribeJobRun",
+                "emr-containers:CancelJobRun",
+                "elasticmapreduce:CreatePersistentAppUI",
+                "elasticmapreduce:DescribePersistentAppUI",
+                "elasticmapreduce:GetPersistentAppUIPresignedURL"
+            ],
+            "Resource": "*"
+        },
+        {
+            "Effect": "Allow",
+            "Action": [
+                "glue:CreateDatabase",
+                "glue:GetDatabase", 
+              	"glue:GetDatabases",
+                "glue:UpdateDatabase",
+                "glue:CreateTable",
+                "glue:UpdateTable",
+                "glue:GetTable",
+                "glue:GetTables",
+                "glue:BatchCreatePartition",
+                "glue:CreatePartition",
+                "glue:DeletePartition",
+                "glue:BatchDeletePartition",
+                "glue:UpdatePartition",
+                "glue:GetPartition",
+                "glue:GetPartitions",
+                "glue:BatchGetPartition"
+            ],
+            "Resource": [
+                "*"
+            ]
+        },
+        {
+            "Effect": "Allow",
+            "Action": [
+                "s3:*"
+            ],
+            "Resource": [
+                "arn:aws:s3:::*"
+            ]
+        },
+        {
+            "Effect": "Allow",
+            "Action": [
+               "athena:StartQueryExecution",
+               "athena:GetQueryExecution",
+               "athena:GetQueryResults",
+               "athena:GetWorkGroup",
+               "athena:GetQueryResultsStream",
+               "athena:StopQueryExecution",
+               "athena:DeleteNamedQuery",
+               "athena:GetNamedQuery",
+               "athena:ListQueryExecutions",
+               "athena:ListNamedQueries",
+               "athena:CreateNamedQuery"
+            ],
+            "Resource": [
+                "arn:aws:athena:*:*:workgroup/primary"
+            ]
+        },
+        {
+            "Sid": "SeeCFNOutput",
+            "Effect": "Allow",
+            "Action": [
+                "cloudformation:DescribeStacks"
+            ],
+            "Resource": "arn:aws:cloudformation:*:*:stack/SparkOnEKS/*"
+        },
+        {
+            "Sid": "ConnectToEKS",
+            "Effect": "Allow",
+            "Action": [
+                "sts:AssumeRole"
+            ],
+            "Resource": [
+                "arn:aws:iam::*:role/SparkOnEKS-*"
+            ]
+        },
+        {
+          "Effect": "Allow",
+          "Action": "iam:CreateServiceLinkedRole",
+          "Resource": "*",
+          "Condition": {
+              "StringEquals": {
+                  "iam:AWSServiceName": [
+                      "autoscaling.amazonaws.com",
+                      "cloud9.amazonaws.com",
+                      "elasticloadbalancing.amazonaws.com",
+                      "eks.amazonaws.com",
+                      "eks-fargate-pods.amazonaws.com",
+                      "eks-nodegroup.amazonaws.com",
+                      "spot.amazonaws.com",
+                      "emr-containers.amazonaws.com"
+                  ]
+              }
+          }
+      },
+      {
+            "Effect": "Allow",
+            "Action": "ssm:StartSession",
+            "Resource": "arn:aws:ec2:*:*:instance/*",
+            "Condition": {
+                "StringLike": {
+                    "ssm:resourceTag/aws:cloud9:environment": "*"
+                },
+                "StringEquals": {
+                    "aws:CalledViaFirst": "cloud9.amazonaws.com"
+                }
+            }
+        },
+ 		{
+            "Effect": "Allow",
+            "Action": [
+                "ssm:StartSession"
+            ],
+            "Resource": [
+                "arn:aws:ssm:*:*:document/*"
+            ]
+        }
+    ]
+}
