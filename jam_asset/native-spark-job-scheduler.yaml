@@ -15,7 +15,7 @@ spec:
     "spark.hadoop.fs.s3a.aws.credentials.provider": "com.amazonaws.auth.WebIdentityTokenCredentialsProvider"
   dynamicAllocation:
     enabled: true
-    maxExecutors: 30
+    maxExecutors: 5
   driver:
     # driver run on OnDemand
     affinity:
