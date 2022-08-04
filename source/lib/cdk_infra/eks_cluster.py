@@ -11,7 +11,7 @@ class EksConst(Construct):
     def my_cluster(self):
         return self._my_cluster
 
-    def __init__(self,scope: Construct, id:str, eksname: str, eksvpc: ec2.IVpc, noderole: IRole, eks_adminrole: IRole, emr_svc_role: IRole, **kwargs) -> None:
+    def __init__(self,scope: Construct, id:str, eksname: str, eksvpc: ec2.IVpc, noderole: IRole, eks_adminrole: IRole, **kwargs) -> None:
         super().__init__(scope, id, **kwargs)
 
         # 1.Create EKS cluster without node group
@@ -52,5 +52,5 @@ class EksConst(Construct):
             tags = {'Name':'Spot-'+eksname, 'k8s.io/cluster-autoscaler/enabled': 'true', 'k8s.io/cluster-autoscaler/'+eksname: 'owned'}
         )
         
-        # 4. Map EMR on EKS role to aws-auth in EKS
-        self._my_cluster.aws_auth.add_role_mapping(emr_svc_role, groups=[], username="emr-containers")
+        # # 4. Map EMR on EKS role to aws-auth in EKS
+        # self._my_cluster.aws_auth.add_role_mapping(emr_svc_role, groups=[], username="emr-containers")
