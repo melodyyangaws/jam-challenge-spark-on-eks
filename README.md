@@ -20,7 +20,7 @@ cd ../regional-s3-assets
 aws s3 sync . s3://aws-jam-challenge-resources/spark-on-eks-made-easy
 
 # Sync the rest of application assets
-cd aws-jam-spark-on-eks-made-easy/jam_asset
+cd ../../jam_asset
 aws s3 sync . s3://aws-jam-challenge-resources/spark-on-eks-made-easy
 ```
 

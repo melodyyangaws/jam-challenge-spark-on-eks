@@ -7,7 +7,7 @@ spec:
   type: Python
   mode: cluster
   image: ghcr.io/tripl-ai/arc:arc_3.11.1_spark_3.1.2_scala_2.12_hadoop_3.2.0_1.0.0
-  mainApplicationFile: "s3a://$(BUCKET_PARAM)/app_code/job/wordcount.py"
+  mainApplicationFile: "s3a://$(BUCKET_PARAM)/app_code/job/reviewcount.py"
   arguments: ["s3a://amazon-reviews-pds/parquet/"]
   sparkVersion: "3.1.2"
   sparkConf:

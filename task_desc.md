@@ -19,11 +19,11 @@ To be able to start, you will:
 - Finally deploy with EMR on EKS.
 
 ### Prerequisites
-* Use one of your existing PySpark jobs, or create a sample called `wordcount.py` with the code snippet below, then upload to your appcode S3 bucket.
+* Use one of your existing PySpark jobs, or create a sample called `reviewcount.py` with the code snippet below, then upload to your appcode S3 bucket.
 ```
 import sys
 from pyspark.sql import SparkSession
-spark = SparkSession.builder.appName('Amazon reviews word count').getOrCreate()
+spark = SparkSession.builder.appName('Amazon reviews count').getOrCreate()
 df = spark.read.parquet(sys.argv[1])
 df.selectExpr("explode(split(lower(review_body), ' ')) as words").groupBy("words").count().write.mode("overwrite").parquet(sys.argv[2])
 exit()
