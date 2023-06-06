@@ -29,16 +29,16 @@ class SparkOnEksStack(Stack):
         source_dir=os.path.split(os.environ['VIRTUAL_ENV'])[0]+'/source'
 
         # Cloudformation input params
-        login_name = CfnParameter(self, "jhubuser", type="String",
-            description="Your username login to jupyter hub",
-            default="sparkoneks"
-        )
-
+        # login_name = CfnParameter(self, "jhubuser", type="String",
+        #     description="Your username login to jupyter hub",
+        #     default="sparkoneks"
+        # )
+        login_name="sparkoneks"
         # Auto-generate a user login in secrets manager
         jhub_secret = secmger.Secret(self, 'jHubPwd', 
             generate_secret_string=secmger.SecretStringGenerator(
                 exclude_punctuation=True,
-                secret_string_template=json.dumps({'username': login_name.value_as_string}),
+                secret_string_template=json.dumps({'username': login_name}),
                 generate_string_key="password")
         )
 
@@ -56,7 +56,8 @@ class SparkOnEksStack(Stack):
         # 2. Setup Spark application access control
         app_security = SparkOnEksSAConst(self,'spark_service_account', 
             eks_cluster.my_cluster, 
-            login_name.value_as_string,
+            login_name,
+            # login_name.value_as_string,
             self.app_s3.code_bucket
         )
 
@@ -65,7 +66,7 @@ class SparkOnEksStack(Stack):
             chart='jupyterhub',
             repository='https://jupyterhub.github.io/helm-chart',
             release='jhub',
-            version='0.11.1',
+            version='1.2.0',
             namespace='jupyter',
             create_namespace=False,
             values=load_yaml_replace_var_local(source_dir+'/app_resources/jupyter-values.yaml', 

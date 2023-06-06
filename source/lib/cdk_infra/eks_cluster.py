@@ -4,6 +4,7 @@
 from aws_cdk import (aws_eks as eks,aws_ec2 as ec2)
 from aws_cdk.aws_iam import IRole
 from constructs import Construct
+from aws_cdk.lambda_layer_kubectl_v26 import KubectlV26Layer
 
 class EksConst(Construct):
 
@@ -20,9 +21,10 @@ class EksConst(Construct):
                 cluster_name=eksname,
                 masters_role=eks_adminrole,
                 output_cluster_name=True,
-                version= eks.KubernetesVersion.V1_21,
+                version= eks.KubernetesVersion.V1_26,
                 endpoint_access= eks.EndpointAccess.PUBLIC_AND_PRIVATE,
-                default_capacity=0
+                default_capacity=0,
+                kubectl_layer=KubectlV26Layer(self, 'kubectl')
         )
 
         # 2.Add Managed NodeGroup to EKS, compute resource to run Spark jobs
@@ -34,7 +36,7 @@ class EksConst(Construct):
             disk_size = 50,
             instance_types = [ec2.InstanceType('r5.xlarge')],
             labels = {'app':'spark', 'lifecycle':'OnDemand'},
-            subnets = ec2.SubnetSelection(subnet_type=ec2.SubnetType.PRIVATE_WITH_NAT,one_per_az=True),
+            subnets = ec2.SubnetSelection(subnet_type=ec2.SubnetType.PRIVATE_WITH_EGRESS,one_per_az=True),
             tags = {'Name':'OnDemand-'+eksname,'k8s.io/cluster-autoscaler/enabled': 'true', 'k8s.io/cluster-autoscaler/'+eksname: 'owned'}
         )  
     

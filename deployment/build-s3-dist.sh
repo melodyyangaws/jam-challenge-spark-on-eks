@@ -27,7 +27,7 @@
 #  - version-code: version of the package
 
 # Important: CDK global version number
-cdk_version===2.12.0
+cdk_version===2.82.0
 
 # Check to see if the required parameters have been provided:
 if [ -z "$1" ] || [ -z "$2" ]; then
@@ -67,8 +67,8 @@ echo "--------------------------------------------------------------------------
 echo "cd $template_dir/deployment/cdk-solution-helper"
 cd $template_dir/deployment/cdk-solution-helper
 echo "npm install"
-npm i --package-lock-only
-npm audit fix
+# npm i --package-lock-only
+# npm audit fix
 npm install
 
 cd $template_dir
@@ -85,8 +85,8 @@ echo "--------------------------------------------------------------------------
 
 # # Install the global aws-cdk package
 echo "npm install -g aws-cdk@$cdk_version"
-npm i --package-lock-only
-npm audit fix
+# npm i --package-lock-only
+# npm audit fix
 npm install aws-cdk@$cdk_version
 
 # Run 'cdk synth' to generate raw solution outputs
@@ -170,7 +170,7 @@ for d in `find . -mindepth 1 -maxdepth 1 -type d`; do
         echo "Initiating virtual environment"
         python3 -m venv $venv_folder
         source $venv_folder/bin/activate
-        pip3 install --upgrade -q $source_dir --target $venv_folder/lib/python3.*/site-packages
+        pip3 install --upgrade pip -q $source_dir --target $venv_folder/lib/python3.*/site-packages
         deactivate
         echo "package python artifact"
         cd $venv_folder/lib/python3.*/site-packages
@@ -185,13 +185,15 @@ for d in `find . -mindepth 1 -maxdepth 1 -type d`; do
         echo "This is Node runtime"
         echo "===================================="
         echo "Clean and rebuild artifacts"
-        npm i --package-lock-only
-        npm audit fix
+        # npm i --package-lock-only
+        # npm audit fix
+        echo "copy package.json and package-lock.json files"
+        cp -rf $template_dir/deployment/cdk-solution-helper/*.json .
         npm run
         npm ci
         if [ "$?" = "1" ]; then
 	        echo "ERROR: Seems like package-lock.json does not exists or is out of sync with package.josn. Trying npm install instead" 1>&2
-            npm install
+            npm install --package-lock
         fi
         # Zip the artifact
         echo "zip -r $staging_dist_dir/$fname"

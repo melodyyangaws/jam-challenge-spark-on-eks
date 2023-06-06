@@ -21,13 +21,13 @@ hub:
       # setup timeout
       c.JupyterHub.cookie_max_age_days = 0.0105
       c.Authenticator.refresh_pre_spawn = True
-      c.JupyterHub.services = [
-        {
-            "name": "idle_culler",
-            "admin": True,
-            "command": [sys.executable, "-m", "jupyterhub_idle_culler", "--timeout=3600"],
-        }
-      ]
+      # c.JupyterHub.services = [
+      #   {
+      #       "name": "idle_culler",
+      #       "admin": True,
+      #       "command": [sys.executable, "-m", "jupyterhub_idle_culler", "--timeout=3600"],
+      #   }
+      # ]
 
   extraEnv:
     - name: LOGIN
@@ -55,7 +55,8 @@ singleuser:
     lifecycle: OnDemand
   image:
     name: ghcr.io/tripl-ai/arc-jupyter
-    tag: arc-jupyter_3.13.1_scala_2.12_hadoop_3.2.0_1.4.0
+    tag: arc-jupyter_3.15.1_scala_2.12_hadoop_3.3.2_1.2.0_null_entrypoint
+    # tag: arc-jupyter_3.13.1_scala_2.12_hadoop_3.2.0_1.4.0
     pullPolicy: Always
   lifecycleHooks:
     postStart:
@@ -101,6 +102,7 @@ scheduling:
   userScheduler:
     enabled: true
     replicas: 1
-
+cull:
+  timeout: 1800
 # debug:
 #   enabled: true      
