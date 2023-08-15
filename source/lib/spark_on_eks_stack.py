@@ -19,9 +19,9 @@ class SparkOnEksStack(Stack):
     def code_bucket(self):
         return self.app_s3.code_bucket
 
-    @property
-    def jhub_url(self):
-        return self._jhub_alb.value
+#    @property
+#    def jhub_url(self):
+#        return self._jhub_alb.value
 
     def __init__(self, scope: Construct, id: str, eksname: str, **kwargs) -> None:
         super().__init__(scope, id, **kwargs)
@@ -62,20 +62,20 @@ class SparkOnEksStack(Stack):
         )
 
         # 3. Install Arc Jupyter notebook to as Spark ETL IDE
-        jhub_install= eks_cluster.my_cluster.add_helm_chart('JHubChart',
-            chart='jupyterhub',
-            repository='https://jupyterhub.github.io/helm-chart',
-            release='jhub',
-            version='1.2.0',
-            namespace='jupyter',
-            create_namespace=False,
-            values=load_yaml_replace_var_local(source_dir+'/app_resources/jupyter-values.yaml', 
-                fields={
-                    "{{codeBucket}}": self.app_s3.code_bucket,
-                    "{{region}}": Aws.REGION
-                })
-        )
-        jhub_install.node.add_dependency(base_app.alb_created)
+#        jhub_install= eks_cluster.my_cluster.add_helm_chart('JHubChart',
+#            chart='jupyterhub',
+#            repository='https://jupyterhub.github.io/helm-chart',
+#            release='jhub',
+#            version='1.2.0',
+#            namespace='jupyter',
+#            create_namespace=False,
+#            values=load_yaml_replace_var_local(source_dir+'/app_resources/jupyter-values.yaml', 
+#                fields={
+#                    "{{codeBucket}}": self.app_s3.code_bucket,
+#                    "{{region}}": Aws.REGION
+#                })
+#        )
+#        jhub_install.node.add_dependency(base_app.alb_created)
 
         # get Arc Jupyter login from secrets manager
         config_hub = eks.KubernetesManifest(self,'JHubConfig',
@@ -88,7 +88,7 @@ class SparkOnEksStack(Stack):
                 }, 
                 multi_resource=True)
         )
-        config_hub.node.add_dependency(jhub_install)
+ #       config_hub.node.add_dependency(jhub_install)
         config_hub.node.add_dependency(app_security)
 
         # 4. Install ETL orchestrator - Argo
@@ -112,11 +112,11 @@ class SparkOnEksStack(Stack):
         # 5.(OPTIONAL) retrieve ALB DNS Name to enable Cloudfront in the following nested stack.
         # Recommend to remove the CloudFront component
         # Setup your TLS certificate with your own domain name.
-        self._jhub_alb=eks.KubernetesObjectValue(self, 'jhubALB',
-            cluster=eks_cluster.my_cluster,
-            json_path='..status.loadBalancer.ingress[0].hostname',
-            object_type='ingress.networking',
-            object_name='jupyterhub',
-            object_namespace='jupyter'
-        )
-        self._jhub_alb.node.add_dependency(config_hub)
+  #      self._jhub_alb=eks.KubernetesObjectValue(self, 'jhubALB',
+  #          cluster=eks_cluster.my_cluster,
+  #          json_path='..status.loadBalancer.ingress[0].hostname',
+  #          object_type='ingress.networking',
+  #          object_name='jupyterhub',
+  #          object_namespace='jupyter'
+  #      )
+  #      self._jhub_alb.node.add_dependency(config_hub)
