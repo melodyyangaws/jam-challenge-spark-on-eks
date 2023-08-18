@@ -78,18 +78,18 @@ class SparkOnEksStack(Stack):
         # jhub_install.node.add_dependency(base_app.alb_created)
 
         # get Arc Jupyter login from secrets manager
-        config_hub = eks.KubernetesManifest(self,'JHubConfig',
-            cluster=eks_cluster.my_cluster,
-            manifest=load_yaml_replace_var_local(source_dir+'/app_resources/jupyter-config.yaml', 
-                fields= {
-                    "{{MY_SA}}": app_security.jupyter_sa,
-                    "{{REGION}}": Aws.REGION, 
-                    "{{SECRET_NAME}}": jhub_secret.secret_name
-                }, 
-                multi_resource=True)
-        )
+        # config_hub = eks.KubernetesManifest(self,'JHubConfig',
+        #     cluster=eks_cluster.my_cluster,
+        #     manifest=load_yaml_replace_var_local(source_dir+'/app_resources/jupyter-config.yaml', 
+        #         fields= {
+        #             "{{MY_SA}}": app_security.jupyter_sa,
+        #             "{{REGION}}": Aws.REGION, 
+        #             "{{SECRET_NAME}}": jhub_secret.secret_name
+        #         }, 
+        #         multi_resource=True)
+        # )
         #config_hub.node.add_dependency(jhub_install)
-        config_hub.node.add_dependency(app_security)
+        #config_hub.node.add_dependency(app_security)
 
         # 4. Install ETL orchestrator - Argo
         # can be replaced by other workflow tool, ie. Airflow
@@ -102,8 +102,8 @@ class SparkOnEksStack(Stack):
             create_namespace=True,
             values=load_yaml_local(source_dir+'/app_resources/argo-values.yaml')
         )
-        argo_install.node.add_dependency(config_hub)
-        # Create a Spark workflow template with different T-shirt size
+        #argo_install.node.add_dependency(config_hub)
+        #Create a Spark workflow template with different T-shirt size
         submit_tmpl = eks_cluster.my_cluster.add_manifest('SubmitSparkWrktmpl',
             load_yaml_local(source_dir+'/app_resources/spark-template.yaml')
         )
@@ -112,11 +112,11 @@ class SparkOnEksStack(Stack):
         # 5.(OPTIONAL) retrieve ALB DNS Name to enable Cloudfront in the following nested stack.
         # Recommend to remove the CloudFront component
         # Setup your TLS certificate with your own domain name.
-        self._jhub_alb=eks.KubernetesObjectValue(self, 'jhubALB',
-            cluster=eks_cluster.my_cluster,
-            json_path='..status.loadBalancer.ingress[0].hostname',
-            object_type='ingress.networking',
-            object_name='jupyterhub',
-            object_namespace='jupyter'
-        )
-        self._jhub_alb.node.add_dependency(config_hub)
+        # self._jhub_alb=eks.KubernetesObjectValue(self, 'jhubALB',
+        #     cluster=eks_cluster.my_cluster,
+        #     json_path='..status.loadBalancer.ingress[0].hostname',
+        #     object_type='ingress.networking',
+        #     object_name='jupyterhub',
+        #     object_namespace='jupyter'
+        # )
+        # self._jhub_alb.node.add_dependency(config_hub)
