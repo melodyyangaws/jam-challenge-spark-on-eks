@@ -41,8 +41,11 @@ sed -i '' -e 's|{{REGION}}|"'$AWS_REGION'"|g' jupyter-config.yaml
 sed -i '' -e 's|{{SECRET_NAME}}|"'$SEC_ID'"|g' jupyter-config.yaml
 ​
 # install
-helm install jhub jupyterhub/jupyterhub --values jupyter-values.yaml --version 1.2.0 -n jupyter  --create-namespace=False --debug
-# kubectl apply -f jupyter-config.yaml -n jupyter 
+helm install jhub jupyterhub/jupyterhub --values jupyter-values.yaml --version 2.0.0 -n jupyter  --create-namespace=False --debug
+kubectl apply -f jupyter-config.yaml -n jupyter 
+
+# Wait for load balancer provisioning
+sleep 180
 ​
 ​
 # 4. get Jupyter Hub login
