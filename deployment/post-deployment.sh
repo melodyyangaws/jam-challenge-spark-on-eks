@@ -13,7 +13,9 @@ sudo curl --silent --location -o /usr/local/bin/kubectl "https://dl.k8s.io/relea
 sudo chmod +x /usr/local/bin/kubectl
 echo "export PATH=$PATH:/usr/local/bin" | tee -a ~/.bash_profile
 source ~/.bash_profile
-kubectl version --short --client
+# In kubectl 1.27, --short has been deprecated
+# kubectl version --short --client
+kubectl version --client
 ​
 # 2. connect to the EKS newly created
 echo `aws cloudformation describe-stacks --stack-name $stack_name --query "Stacks[0].Outputs[?starts_with(OutputKey,'eksclusterEKSConfig')].OutputValue" --output text` | bash
@@ -42,7 +44,7 @@ sed -i '' -e 's|{{SECRET_NAME}}|"'$SEC_ID'"|g' jupyter-config.yaml
 ​
 # install
 helm install jhub jupyterhub/jupyterhub --values jupyter-values.yaml --version 1.2.0 -n jupyter  --create-namespace=False --debug
-# kubectl apply -f jupyter-config.yaml -n jupyter 
+#kubectl apply -f jupyter-config.yaml -n jupyter
 ​
 ​
 # 4. get Jupyter Hub login

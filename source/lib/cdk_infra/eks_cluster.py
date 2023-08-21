@@ -4,7 +4,7 @@
 from aws_cdk import (aws_eks as eks,aws_ec2 as ec2)
 from aws_cdk.aws_iam import IRole
 from constructs import Construct
-from aws_cdk.lambda_layer_kubectl_v26 import KubectlV26Layer
+from aws_cdk.lambda_layer_kubectl_v23 import KubectlV23Layer
 
 class EksConst(Construct):
 
@@ -21,10 +21,10 @@ class EksConst(Construct):
                 cluster_name=eksname,
                 masters_role=eks_adminrole,
                 output_cluster_name=True,
-                version= eks.KubernetesVersion.V1_26,
+                version= eks.KubernetesVersion.V1_23,
                 endpoint_access= eks.EndpointAccess.PUBLIC_AND_PRIVATE,
                 default_capacity=0,
-                kubectl_layer=KubectlV26Layer(self, 'kubectl')
+                kubectl_layer=KubectlV23Layer(self, 'kubectl')
         )
 
         # 2.Add Managed NodeGroup to EKS, compute resource to run Spark jobs
