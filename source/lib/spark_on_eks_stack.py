@@ -48,8 +48,8 @@ class SparkOnEksStack(Stack):
         # 1. Setup EKS base infrastructure
         network_sg = NetworkSgConst(self,'network-sg', eksname)
         iam = IamConst(self,'iam_roles', eksname)
-        # eks_cluster = EksConst(self,'eks_cluster', eksname, network_sg.vpc, iam.managed_node_role, iam.admin_role, iam.emr_svc_role)
-        eks_cluster = EksConst(self,'eks_cluster', eksname, network_sg.vpc, iam.managed_node_role, iam.admin_role)
+        eks_cluster = EksConst(self,'eks_cluster', eksname, network_sg.vpc, iam.managed_node_role, iam.admin_role, iam.emr_svc_role)
+        # eks_cluster = EksConst(self,'eks_cluster', eksname, network_sg.vpc, iam.managed_node_role, iam.admin_role)
         EksSAConst(self, 'eks_sa', eks_cluster.my_cluster, jhub_secret)
         base_app=EksBaseAppConst(self, 'eks_base_app', eks_cluster.my_cluster)
 
