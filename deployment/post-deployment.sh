@@ -30,16 +30,14 @@ helm repo update
 ​
 # download config files from JAM
 wget https://aws-jam-challenge-resources.s3.amazonaws.com/spark-on-eks-made-easy/jupyter-values.yaml
-wget https://aws-jam-challenge-resources.s3.amazonaws.com/spark-on-eks-made-easy/jupyter-config.yaml
+
 # replace variables
 export AWS_REGION=$(aws configure get region)
 export app_code_bucket=$(aws cloudformation describe-stacks --stack-name $stack_name --query "Stacks[0].Outputs[?OutputKey=='CODEBUCKET'].OutputValue" --output text)
 export SEC_ID=$(aws secretsmanager list-secrets --query "SecretList[?not_null(Tags[?Value=='$stack_name'])].Name" --output text)
 sed -i '' -e 's|{{codeBucket}}|"'$app_code_bucket'"|g' jupyter-values.yaml
 sed -i '' -e 's|{{region}}|"'$AWS_REGION'"|g' jupyter-values.yaml
-sed -i '' -e 's|{{REGION}}|"'$AWS_REGION'"|g' jupyter-config.yaml
-sed -i '' -e 's|{{SECRET_NAME}}|"'$SEC_ID'"|g' jupyter-config.yaml
-​
+
 # install
 helm install jhub jupyterhub/jupyterhub --values jupyter-values.yaml --version 1.2.0 -n jupyter  --create-namespace=False --debug
 # kubectl apply -f jupyter-config.yaml -n jupyter 
