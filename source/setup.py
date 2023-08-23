@@ -5,6 +5,7 @@ import setuptools
 try:
     with open("../README.md") as fp:
         long_description = fp.read()
+        
 except IOError as e:
     long_description = ''
 
@@ -23,9 +24,9 @@ setuptools.setup(
 
     install_requires=[
         "constructs>=10.0.0,<11.0.0",
-        "pyyaml==5.4",
+        "pyyaml==6.0.1",
         "aws-cdk-lib==2.82.0",
-        "aws-cdk.lambda-layer-kubectl-v26"
+        "aws-cdk.lambda-layer-kubectl-v24==2.0.118"
     ],
 
     python_requires=">=3.6",
