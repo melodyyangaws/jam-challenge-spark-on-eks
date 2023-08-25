@@ -18,7 +18,11 @@ echo `aws cloudformation describe-stacks --stack-name $stack_name --query "Stack
 echo -e "\nTest EKS connection..."
 kubectl get svc
 
-# 3. Install Jupyter hub in EKS cluster
+# 3. patch Argo
+argo_cm=$(kubectl get cm -n argo | grep controller-configmap | awk '{print $1}')
+kubectl patch configmap/$argo_cm -n argo -p '{ "data": { "config": "containerRuntimeExecutor: pns\n" }}'
+
+# 4. Install Jupyter hub in EKS cluster
 curl https://raw.githubusercontent.com/helm/helm/HEAD/scripts/get-helm-3 | bash
 helm version
 
@@ -37,7 +41,7 @@ sed -i '' -e 's|{{region}}|"'$AWS_REGION'"|g' jupyter-values.yaml
 # install
 helm install jhub jupyterhub/jupyterhub --values jupyter-values.yaml --version 2.0.0 -n jupyter  --create-namespace=False --debug
 
-# 4. get Jupyter Hub login
+# 5. get Jupyter Hub login
 SEC_ID=$(aws secretsmanager list-secrets --query "SecretList[?not_null(Tags[?Value=='$stack_name'])].Name" --output text)
 URI=$(kubectl get ingress -n jupyter  -o json | jq '.items[0].status.loadBalancer.ingress[0].hostname')
 LOGIN=$(aws secretsmanager get-secret-value --secret-id $SEC_ID --query SecretString --output text)

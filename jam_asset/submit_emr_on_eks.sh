@@ -6,10 +6,10 @@ aws emr-containers start-job-run \
   --virtual-cluster-id $VIRTUAL_CLUSTER_ID \
   --name word_count \
   --execution-role-arn $EMR_EXECUTION_ROLE_ARN \
-  --release-label emr-6.5.0-latest \
+  --release-label emr-6.10.0-latest \
   --job-driver '{
     "sparkSubmitJobDriver": {
-      "entryPoint": "s3://'${s3Bucket}'/reviewcount.py","entryPointArguments":["s3://amazon-reviews-pds/parquet/","s3://'${s3Bucket}'/output"], 
+      "entryPoint": "s3://'${s3Bucket}'/NYCTaxiCount.py","entryPointArguments":["s3://nyc-tlc/csv_backup/green_tripdata_2021*.csv","s3://'${s3Bucket}'/outputs/emr"], 
       "sparkSubmitParameters": "--conf spark.driver.memory=1G --conf spark.driver.cores=1 --conf spark.executor.memory=6G --conf spark.executor.cores=1"}}' \
   --configuration-overrides='{
   	"applicationConfiguration": [
