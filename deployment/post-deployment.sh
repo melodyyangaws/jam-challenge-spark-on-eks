@@ -9,7 +9,7 @@ sudo yum -y -q install jq
 
 echo -e "\nInstall kubectl tool on Linux ..."
 # Install kubectl
-curl -O https://s3.us-west-2.amazonaws.com/amazon-eks/1.26.4/2023-05-11/bin/darwin/amd64/kubectl
+curl -O https://s3.us-west-2.amazonaws.com/amazon-eks/1.24.16/2023-08-16/bin/linux/amd64/kubectl
 chmod +x kubectl
 mkdir -p $HOME/bin && mv kubectl $HOME/bin/kubectl && export PATH=$PATH:$HOME/bin
 

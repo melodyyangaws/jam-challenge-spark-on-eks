@@ -5,7 +5,6 @@
     Resource:
     - arn:aws:s3:::{{codeBucket}}
     - arn:aws:s3:::nyc-tlc
-    - arn:aws:s3:::amazon-reviews-pds
   - Effect: Allow
     Action:
     - s3:PutObject
@@ -13,7 +12,6 @@
     Resource:
     - arn:aws:s3:::{{codeBucket}}/*
     - arn:aws:s3:::nyc-tlc/*
-    - arn:aws:s3:::amazon-reviews-pds/*
   - Effect: Allow
     Action:
     - s3:DeleteObject
