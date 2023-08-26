@@ -22,9 +22,9 @@ aws s3 sync . s3://aws-jam-challenge-resources/spark-on-eks-made-easy
 
 # Sync the rest of application assets
 cd ../../jam_asset
-cp ../source/app_resources/jupyter-values.yaml .
-cp ../deployment/post-deployment.sh .
-aws s3 sync . s3://aws-jam-challenge-resources/spark-on-eks-made-easy
+aws s3 sync ../source/app_resources/jupyter-values.yaml s3://aws-jam-challenge-resources/spark-on-eks-made-easy
+aws s3 sync ../deployment/post-deployment.sh s3://aws-jam-challenge-resources/spark-on-eks-made-easy
+aws s3 sync ../deployment/app_code/job/NYCTaxiCount.py s3://aws-jam-challenge-resources/spark-on-eks-made-easy
 ```
 
 ## Clean up

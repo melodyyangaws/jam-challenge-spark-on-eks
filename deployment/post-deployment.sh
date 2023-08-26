@@ -25,10 +25,8 @@ kubectl patch configmap/$argo_cm -n argo -p '{ "data": { "config": "containerRun
 # 4. Install Jupyter hub in EKS cluster
 curl https://raw.githubusercontent.com/helm/helm/HEAD/scripts/get-helm-3 | bash
 helm version
-
 helm repo add jupyterhub https://jupyterhub.github.io/helm-chart
 helm repo update
-
 # download config files from JAM
 wget https://aws-jam-challenge-resources.s3.amazonaws.com/spark-on-eks-made-easy/jupyter-values.yaml
 

@@ -9,7 +9,7 @@ aws emr-containers start-job-run \
   --release-label emr-6.10.0-latest \
   --job-driver '{
     "sparkSubmitJobDriver": {
-      "entryPoint": "s3://'${s3Bucket}'/NYCTaxiCount.py","entryPointArguments":["s3://nyc-tlc/csv_backup/green_tripdata_2021*.csv","s3://'${s3Bucket}'/outputs/emr"], 
+      "entryPoint": "s3://'${s3Bucket}'/NYCTaxiCount.py","entryPointArguments":["s3://nyc-tlc/csv_backup/green_tripdata*.csv"], 
       "sparkSubmitParameters": "--conf spark.driver.memory=1G --conf spark.driver.cores=1 --conf spark.executor.memory=6G --conf spark.executor.cores=1"}}' \
   --configuration-overrides='{
   	"applicationConfiguration": [
@@ -18,8 +18,8 @@ aws emr-containers start-job-run \
         "properties": {
           "spark.dynamicAllocation.enabled":"true",
           "spark.dynamicAllocation.shuffleTracking.enabled":"true",
-          "spark.dynamicAllocation.maxExecutors":"30",
-          "spark.kubernetes.allocation.batch.size": "15"
+          "spark.dynamicAllocation.maxExecutors":"20",
+          "spark.kubernetes.allocation.batch.size": "10"
         }
       }
     ]
