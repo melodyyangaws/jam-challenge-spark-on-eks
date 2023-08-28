@@ -4,7 +4,7 @@ export s3Bucket=$(aws s3api list-buckets  --query 'Buckets[?starts_with(Name,`sp
 
 aws emr-containers start-job-run \
   --virtual-cluster-id $VIRTUAL_CLUSTER_ID \
-  --name word_count \
+  --name nyc-taxi-vendor-count \
   --execution-role-arn $EMR_EXECUTION_ROLE_ARN \
   --release-label emr-6.10.0-latest \
   --job-driver '{
