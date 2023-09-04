@@ -134,6 +134,11 @@ Resources:
           Value: "JamOrchestrator"
   SSHOnlySecurityGroup:
     Type: 'AWS::EC2::SecurityGroup'
+    Metadata:
+      cfn_nag:
+        rules_to_suppress:
+          - id: F1000
+            reason: 'require all traffic for outbound to connect to external amazonlinux-2-repos, otherwise Timeout'
     Properties:
       GroupDescription: Enable SSH access
       SecurityGroupIngress:
@@ -147,6 +152,13 @@ Resources:
           Value: "JamOrchestrator"
   RootRole:
     Type: 'AWS::IAM::Role'
+    Metadata:
+      cfn_nag:
+        rules_to_suppress:
+          - id: F3
+            reason: "Allow * actions required by the root role"
+          - id: F38
+            reason: "Allow * resource required by the root role"  
     Properties:
       AssumeRolePolicyDocument:
         Version: 2012-10-17
@@ -182,4 +194,4 @@ Resources:
       CatalogId: !Ref AWS::AccountId   
       DatabaseInput:
         Name: default
-        Description: Database to hold cdc tables for the challenge          
+        Description: Database to hold cdc tables for the challenge
