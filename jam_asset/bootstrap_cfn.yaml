@@ -11,11 +11,11 @@ Parameters:
     Type: String
     Default: t3.small
   SSHLocation:
-    Description: The IP address range that can be used to SSH in
+    Description: The IP address range that can be used to SSH in but not a public address and different from VpcCIDR
     Type: String
     MinLength: '9'
     MaxLength: '18'
-    Default: 0.0.0.0/0
+    Default: 192.168.0.0/32
     AllowedPattern: '(\d{1,3})\.(\d{1,3})\.(\d{1,3})\.(\d{1,3})/(\d{1,2})'
   EnvironmentName:
     Description: An environment name that is prefixed to resource names
@@ -140,7 +140,7 @@ Resources:
           - id: F1000
             reason: 'require all traffic for outbound to connect to external amazonlinux-2-repos, otherwise Timeout'
     Properties:
-      GroupDescription: Enable SSH access
+      GroupDescription: Restrict SSH access to SSHLocation
       SecurityGroupIngress:
         - IpProtocol: tcp
           FromPort: '22'
