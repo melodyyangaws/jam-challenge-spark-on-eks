@@ -33,8 +33,15 @@ wget https://aws-jam-challenge-resources.s3.amazonaws.com/spark-on-eks-made-easy
 # replace variables
 export AWS_REGION=$(aws configure get region)
 export app_code_bucket=$(aws cloudformation describe-stacks --stack-name $stack_name --query "Stacks[0].Outputs[?OutputKey=='CODEBUCKET'].OutputValue" --output text)
-sed -i '' -e 's|{{codeBucket}}|"'$app_code_bucket'"|g' jupyter-values.yaml
-sed -i '' -e 's|{{region}}|"'$AWS_REGION'"|g' jupyter-values.yaml
+if [[ "$OSTYPE" == "darwin"* ]]; then
+  sed -i '' -e 's|{{codeBucket}}|"'$app_code_bucket'"|g' jupyter-values.yaml
+  sed -i '' -e 's|{{region}}|"'$AWS_REGION'"|g' jupyter-values.yaml
+else
+  sed -i -e 's|{{codeBucket}}|"'$app_code_bucket'"|g' jupyter-values.yaml
+  sed -i -e 's|{{region}}|"'$AWS_REGION'"|g' jupyter-values.yaml
+fi
+
+
 
 # install
 helm install jhub jupyterhub/jupyterhub --values jupyter-values.yaml --version 2.0.0 -n jupyter  --create-namespace=False --debug
