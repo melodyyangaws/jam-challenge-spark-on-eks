@@ -114,9 +114,11 @@ Resources:
         Timeout: PT1H1M1S
     Properties:
       UserData: 
-        Fn::Base64: !Sub | 
+        Fn::Base64: !Sub |
           #!/bin/bash
-          yum update -y aws-cfn-bootstrap
+          yum install -y aws-cfn-bootstrap
+          pip3 install awscli --upgrade --user
+          export PATH=~/.local/bin:$PATH
           /opt/aws/bin/cfn-init -v --stack ${AWS::StackName} --resource Bootstrapper --region ${AWS::Region}
           mkdir -p /tmp/
           wget https://aws-jam-challenge-resources-${AWS::Region}.s3.amazonaws.com/spark-on-eks-made-easy/bootstrap.sh -P /tmp/

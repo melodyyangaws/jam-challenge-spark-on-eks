@@ -17,6 +17,7 @@ aws configure get default.region
 # Spin up a Cloud9 environment
 jam_pubsubnet=$(aws ec2 describe-subnets --filters Name=tag:Name,Values="jam Public Subnet (AZ2)" --query "Subnets[*].SubnetId" --output text)
 lab_role=$(aws iam list-roles --query 'Roles[?starts_with(RoleName,`AWSLabsUser-`)==`true`].RoleName' --output text)
+
 if [ -z "$lab_role" ] 
 then
     echo "cloud9 owner is arn:aws:sts::${ACCOUNT_ID}:assumed-role/TeamRole/MasterKey"
