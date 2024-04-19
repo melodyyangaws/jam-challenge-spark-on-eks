@@ -206,7 +206,10 @@ Resources:
         ServerSideEncryptionConfiguration:
           - ServerSideEncryptionByDefault:
               SSEAlgorithm: 'aws:kms'
-      AccessControl: "LogDeliveryWrite"
+      OwnershipControls:
+        Rules:
+          - ObjectOwnership: ObjectWriter
+      AccessControl: LogDeliveryWrite
       VersioningConfiguration:
         Status: Enabled
       LoggingConfiguration:
