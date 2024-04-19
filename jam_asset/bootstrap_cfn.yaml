@@ -59,6 +59,12 @@ Resources:
 
   PublicSubnet1:
     Type: AWS::EC2::Subnet
+    Metadata:
+      cfn_nag:
+        rules_to_suppress:
+          - id: W33
+            reason: >-
+              (W33) EC2 Subnet should have MapPublicIpOnLaunch required, otherwise timeout.
     Properties:
       VpcId: !Ref VPC
       AvailabilityZone: !Select [ 0, !GetAZs '' ]
@@ -70,6 +76,12 @@ Resources:
 
   PublicSubnet2:
     Type: AWS::EC2::Subnet
+    Metadata:
+      cfn_nag:
+        rules_to_suppress:
+          - id: W33
+            reason: >-
+              (W33) EC2 Subnet should have MapPublicIpOnLaunch required, otherwise timeout.
     Properties:
       VpcId: !Ref VPC
       AvailabilityZone: !Select [ 1, !GetAZs  '' ]
@@ -190,6 +202,16 @@ Resources:
     Type: "AWS::S3::Bucket"
     Properties: 
       BucketName: !Sub 'sparklab-${AWS::AccountId}-${AWS::Region}'
+      BucketEncryption:
+        ServerSideEncryptionConfiguration:
+          - ServerSideEncryptionByDefault:
+              SSEAlgorithm: 'aws:kms'
+      AccessControl: "LogDeliveryWrite"
+      VersioningConfiguration:
+        Status: Enabled
+      LoggingConfiguration:
+        # access logs for this bucket will be stored in the same bucket
+        LogFilePrefix: !Sub 'sparklab-${AWS::AccountId}-${AWS::Region}'        
   CDCDatabase:
     Type: AWS::Glue::Database
     Properties:
@@ -197,3 +219,45 @@ Resources:
       DatabaseInput:
         Name: default
         Description: Database to hold cdc tables for the challenge
+  VPCFlowLogsRole:
+    Type: AWS::IAM::Role
+    Properties:
+      Description: permission to publish VPC flow logs to CloudWatch Logs.
+      AssumeRolePolicyDocument:
+        Version: 2012-10-17
+        Statement:
+          - Effect: Allow
+            Action: sts:AssumeRole
+            Principal:
+              Service:
+                - vpc-flow-logs.amazonaws.com
+      Path: /
+      Policies:
+        - PolicyName: CloudWatchLogGroup
+          PolicyDocument:
+            Version: 2012-10-17
+            Statement:
+              - Sid: CloudWatchLogs
+                Effect: Allow
+                Action:
+                  - logs:CreateLogStream
+                  - logs:PutLogEvents
+                  - logs:DescribeLogGroups
+                  - logs:DescribeLogStreams
+                Resource: !GetAtt VPCFlowLogsLogGroup.Arn
+  VPCFlowLogsLogGroup:
+    Type: AWS::Logs::LogGroup
+    Properties:
+      RetentionInDays: 14
+  VPCFlowLogsToCloudWatch:
+    Type: AWS::EC2::FlowLog
+    Properties:
+      LogDestinationType: cloud-watch-logs
+      LogGroupName: !Ref VPCFlowLogsLogGroup
+      DeliverLogsPermissionArn: !GetAtt VPCFlowLogsRole.Arn
+      ResourceId: !Ref VPC
+      ResourceType: VPC
+      TrafficType: REJECT
+      Tags:
+        - Key: Name
+          Value: VPC Flow Logs CloudWatch
