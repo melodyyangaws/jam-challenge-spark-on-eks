@@ -25,26 +25,24 @@ kubectl patch configmap/$argo_cm -n argo -p '{ "data": { "config": "containerRun
 # 4. Install Jupyter hub in EKS cluster
 curl https://raw.githubusercontent.com/helm/helm/HEAD/scripts/get-helm-3 | bash
 helm version
-helm repo add jupyterhub https://jupyterhub.github.io/helm-chart
-helm repo update
+# helm repo add jupyterhub https://jupyterhub.github.io/helm-chart
+# helm repo update
 # download config files from JAM
-wget https://aws-jam-challenge-resources.s3.amazonaws.com/spark-on-eks-made-easy/jupyter-values.yaml
+# wget https://aws-jam-challenge-resources.s3.amazonaws.com/spark-on-eks-made-easy/jupyter-values.yaml
 
 # replace variables
-export AWS_REGION=$(aws configure get region)
-export app_code_bucket=$(aws cloudformation describe-stacks --stack-name $stack_name --query "Stacks[0].Outputs[?OutputKey=='CODEBUCKET'].OutputValue" --output text)
-if [[ "$OSTYPE" == "darwin"* ]]; then
-  sed -i '' -e 's|{{codeBucket}}|"'$app_code_bucket'"|g' jupyter-values.yaml
-  sed -i '' -e 's|{{region}}|"'$AWS_REGION'"|g' jupyter-values.yaml
-else
-  sed -i -e 's|{{codeBucket}}|"'$app_code_bucket'"|g' jupyter-values.yaml
-  sed -i -e 's|{{region}}|"'$AWS_REGION'"|g' jupyter-values.yaml
-fi
-
-
+# export AWS_REGION=$(aws configure get region)
+# export app_code_bucket=$(aws cloudformation describe-stacks --stack-name $stack_name --query "Stacks[0].Outputs[?OutputKey=='CODEBUCKET'].OutputValue" --output text)
+# if [[ "$OSTYPE" == "darwin"* ]]; then
+#   sed -i '' -e 's|{{codeBucket}}|"'$app_code_bucket'"|g' jupyter-values.yaml
+#   sed -i '' -e 's|{{region}}|"'$AWS_REGION'"|g' jupyter-values.yaml
+# else
+#   sed -i -e 's|{{codeBucket}}|"'$app_code_bucket'"|g' jupyter-values.yaml
+#   sed -i -e 's|{{region}}|"'$AWS_REGION'"|g' jupyter-values.yaml
+# fi
 
 # install
-helm install jhub jupyterhub/jupyterhub --values jupyter-values.yaml --version 2.0.0 -n jupyter  --create-namespace=False --debug
+# helm install jhub jupyterhub/jupyterhub --values jupyter-values.yaml --version 3.0.0 -n jupyter  --create-namespace=False --debug
 
 # 5. get Jupyter Hub login
 SEC_ID=$(aws secretsmanager list-secrets --query "SecretList[?not_null(Tags[?Value=='$stack_name'])].Name" --output text)

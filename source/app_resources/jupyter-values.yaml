@@ -12,10 +12,10 @@ hub:
           "secret-token": "service-admin",
       }
       # this script allows serviceAccountName to use dynamic naming based on {unescaped_username}"
-      async def override_service_account_hook(kube_spawner):
-        if kube_spawner.service_account is not None:
-          kube_spawner.service_account = kube_spawner._expand_user_properties(kube_spawner.service_account)
-          kube_spawner.env['USER_NAME'] = kube_spawner._expand_user_properties("{unescaped_username}")
+      async def override_service_account_hook(spawner):
+        if spawner.service_account is not None:
+          spawner.service_account = spawner._expand_user_properties(spawner.service_account)
+          spawner.env['USER_NAME'] = spawner._expand_user_properties("{unescaped_username}")
       c.KubeSpawner.pre_spawn_hook = override_service_account_hook
       c.KubeSpawner.args=['--ip=0.0.0.0','--port=8888','--SingleUserNotebookApp.default_url=/lab'] 
       

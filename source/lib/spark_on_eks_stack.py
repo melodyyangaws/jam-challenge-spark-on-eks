@@ -62,20 +62,20 @@ class SparkOnEksStack(Stack):
         )
 
         # 3. Install Arc Jupyter notebook to as Spark ETL IDE
-        #jhub_install= eks_cluster.my_cluster.add_helm_chart('JHubChart',
-        #    chart='jupyterhub',
-        #    repository='https://jupyterhub.github.io/helm-chart',
-        #    release='jhub',
-        #    version='1.2.0',
-        #    namespace='jupyter',
-        #    create_namespace=False,
-        #    values=load_yaml_replace_var_local(source_dir+'/app_resources/jupyter-values.yaml', 
-        #         fields={
-        #             "{{codeBucket}}": self.app_s3.code_bucket,
-        #             "{{region}}": Aws.REGION
-        #         })
-        # )
-        # jhub_install.node.add_dependency(base_app.alb_created)
+        jhub_install= eks_cluster.my_cluster.add_helm_chart('JHubChart',
+           chart='jupyterhub',
+           repository='https://jupyterhub.github.io/helm-chart',
+           release='jhub',
+           version='3.0.0',
+           namespace='jupyter',
+           create_namespace=False,
+           values=load_yaml_replace_var_local(source_dir+'/app_resources/jupyter-values.yaml', 
+                fields={
+                    "{{codeBucket}}": self.app_s3.code_bucket,
+                    "{{region}}": Aws.REGION
+                })
+        )
+        jhub_install.node.add_dependency(base_app.alb_created)
 
         # get Arc Jupyter login from secrets manager
         config_hub = eks.KubernetesManifest(self,'JHubConfig',
