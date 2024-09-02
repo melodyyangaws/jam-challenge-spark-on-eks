@@ -3,11 +3,13 @@ A python CDK v2 project for AWS JAM - Spark on EKS made easy.
 
 ## Generate the CFN
 ```bash
+# go to the project directory
+git clone git@github.com:melodyyangaws/jam-challenge-spark-on-eks.git
+cd jam-challenge-spark-on-eks
+
+# build a set of CFN templates based on the CDK source code
 export BUCKET_NAME_PREFIX=aws-jam-challenge-resources
 export SOLUTION_NAME=spark-on-eks-made-easy
-
-# go to the project directory
-cd jam-challenge-spark-on-eks
 ./deployment/build-s3-dist.sh $BUCKET_NAME_PREFIX $SOLUTION_NAME
 
 ########################################################
@@ -20,11 +22,13 @@ aws s3 sync . s3://aws-jam-challenge-resources/spark-on-eks-made-easy
 cd ../regional-s3-assets
 aws s3 sync . s3://aws-jam-challenge-resources/spark-on-eks-made-easy
 
-# Sync the rest of application assets
+# Sync the rest of JAM assets
 cd ../../jam_asset
-aws s3 sync ../source/app_resources/jupyter-values.yaml s3://aws-jam-challenge-resources/spark-on-eks-made-easy
-aws s3 sync ../deployment/post-deployment.sh s3://aws-jam-challenge-resources/spark-on-eks-made-easy
-aws s3 sync ../deployment/app_code/job/NYCTaxiCount.py s3://aws-jam-challenge-resources/spark-on-eks-made-easy
+aws s3 sync . s3://aws-jam-challenge-resources/spark-on-eks-made-easy
+# Sync other application code to the JAM asset
+aws s3 cp ../source/app_resources/jupyter-values.yaml s3://aws-jam-challenge-resources/spark-on-eks-made-easy/jupyter-values.yaml
+aws s3 cp ../deployment/post-deployment.sh s3://aws-jam-challenge-resources/spark-on-eks-made-easy/post-deployment.sh
+aws s3 cp ../deployment/app_code/job/NYCTaxiCount.py s3://aws-jam-challenge-resources/spark-on-eks-made-easy/NYCTaxiCount.py
 ```
 
 ## Clean up

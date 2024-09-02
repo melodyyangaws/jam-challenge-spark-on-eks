@@ -27,12 +27,12 @@
 #  - version-code: version of the package
 
 # Important: CDK global version number
-cdk_version===2.105.0
+cdk_version===2.155.0
 
 # Check to see if the required parameters have been provided:
 if [ -z "$1" ] || [ -z "$2" ]; then
-    echo "Please provide the base source bucket name, trademark approved solution name and version where the lambda code will eventually reside."
-    echo "For example: ./build-s3-dist.sh solutions trademarked-solution-name v1.0.0 template-bucket-name"
+    echo "Please provide the base source bucket name, solution name."
+    echo "For example: ./build-s3-dist.sh BUCKET_NAME SOLUTION_NAME"
     exit 1
 fi
 

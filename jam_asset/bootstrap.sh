@@ -36,11 +36,13 @@ result=$(aws cloud9 create-environment-ec2 \
 --owner-arn ${owner} --output text)
 echo "cloud9 env $result is created"
 
+
 # Deploy CFN
 export BUCKET_NAME=sparklab-$ACCOUNT_ID-$AWS_REGION
+# Download CDK source code to the s3 bucket
 aws cloudformation deploy \
 --stack-name SparkOnEKS \
---template-file /tmp/sparkoneks.yaml \
+--template-file /tmp/SparkOnEKS.template \
 --s3-bucket $BUCKET_NAME \
 --region $AWS_REGION \
 --capabilities CAPABILITY_NAMED_IAM

@@ -15,9 +15,8 @@
                 "eks:DescribeCluster",
                 "eks:ListClusters",
               	"eks:AccessKubernetesApi",
-                "cloudwatch:*",
-                "logs:*",
-                "cloud9:*",
+                "cloud9:UpdateUserSettings",
+                "cloud9:GetUserSettings",
                 "ec2:DescribeVpcs",
                 "ec2:DescribeSubnets",
                 "cloudformation:ListStacks",
@@ -26,6 +25,46 @@
               	"athena:UpdateWorkGroup"
             ],
             "Resource": "*"
+        },
+        {
+            "Effect": "Allow",
+            "Action": [
+                "cloud9:CreateEnvironmentEC2",
+                "cloud9:CreateEnvironmentSSH"
+            ],
+            "Resource": "*",
+            "Condition": {
+                "Null": {
+                    "cloud9:OwnerArn": "true"
+                }
+            }
+        },
+        {
+            "Effect": "Allow",
+            "Action": [
+                "cloud9:GetUserPublicKey"
+            ],
+            "Resource": "*",
+            "Condition": {
+                "Null": {
+                    "cloud9:UserArn": "true"
+                }
+            }
+        },
+       {
+            "Effect": "Allow",
+            "Action": [
+                "cloud9:DescribeEnvironmentMemberships"
+            ],
+            "Resource": [
+                "*"
+            ],
+            "Condition": {
+                "Null": {
+                    "cloud9:UserArn": "true",
+                    "cloud9:EnvironmentId": "true"
+                }
+            }
         },
         {
             "Sid": "2",
@@ -70,7 +109,6 @@
             "Resource": "*"
         },
          {
-            "Sid": "allowEmrOnEks",
             "Effect": "Allow",
             "Action": [
                 "emr-containers:CreateVirtualCluster",
@@ -114,11 +152,11 @@
         {
             "Effect": "Allow",
             "Action": [
-                "s3:*"
+                "s3:List*",
+              	"s3:Get*",
+                "s3:Create*"
             ],
-            "Resource": [
-                "arn:aws:s3:::*"
-            ]
+            "Resource": "arn:aws:s3:::*"
         },
         {
             "Effect": "Allow",

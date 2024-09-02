@@ -25,8 +25,8 @@ setuptools.setup(
     install_requires=[
         "constructs>=10.0.0,<11.0.0",
         "pyyaml==6.0.1",
-        "aws-cdk-lib==2.105.0",
-        "aws-cdk.lambda-layer-kubectl-v27==2.1.0"
+        "aws-cdk-lib==2.155.0",
+        "aws-cdk.lambda-layer-kubectl-v29"
     ],
 
     python_requires=">=3.7",

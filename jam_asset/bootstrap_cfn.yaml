@@ -121,6 +121,7 @@ Resources:
 
   Bootstrapper:
     Type: 'AWS::EC2::Instance'
+    DependsOn: LabBucket
     CreationPolicy:
       ResourceSignal:
         Timeout: PT1H1M1S
@@ -133,8 +134,9 @@ Resources:
           export PATH=~/.local/bin:$PATH
           /opt/aws/bin/cfn-init -v --stack ${AWS::StackName} --resource Bootstrapper --region ${AWS::Region}
           mkdir -p /tmp/
+          # aws s3 sync s3://aws-jam-challenge-resources-${AWS::Region}/spark-on-eks-made-easy s3://sparklab-${AWS::AccountId}-${AWS::Region}/spark-on-eks-made-easy
           wget https://aws-jam-challenge-resources-${AWS::Region}.s3.amazonaws.com/spark-on-eks-made-easy/bootstrap.sh -P /tmp/
-          wget https://aws-jam-challenge-resources-${AWS::Region}.s3.amazonaws.com/spark-on-eks-made-easy/sparkoneks.yaml -P /tmp/
+          wget https://aws-jam-challenge-resources-${AWS::Region}.s3.amazonaws.com/spark-on-eks-made-easy/SparkOnEKS.template -P /tmp/
           /bin/bash /tmp/bootstrap.sh
           /opt/aws/bin/cfn-signal -e $? --stack ${AWS::StackName} --resource Bootstrapper --region ${AWS::Region}
       InstanceType: !Ref InstanceType
