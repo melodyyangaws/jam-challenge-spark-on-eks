@@ -8,7 +8,7 @@ spec:
   mode: cluster
   image: ghcr.io/tripl-ai/arc:arc_3.11.1_spark_3.1.2_scala_2.12_hadoop_3.2.0_1.0.0
   mainApplicationFile: "s3a://$(BUCKET_PARAM)/app_code/job/NYCTaxiCount.py"
-  arguments: ["s3a://nyc-tlc/csv_backup/green_tripdata*.csv"]
+  arguments: ["s3a://dask-data/nyc-taxi/2015/*.csv"]
   sparkVersion: "3.1.2"
   sparkConf:
     "spark.hadoop.fs.s3a.impl": "org.apache.hadoop.fs.s3a.S3AFileSystem"

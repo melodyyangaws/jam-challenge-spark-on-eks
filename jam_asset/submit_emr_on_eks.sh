@@ -9,7 +9,7 @@ aws emr-containers start-job-run \
   --release-label emr-6.10.0-latest \
   --job-driver '{
     "sparkSubmitJobDriver": {
-      "entryPoint": "s3://'${s3Bucket}'/NYCTaxiCount.py","entryPointArguments":["s3://nyc-tlc/csv_backup/green_tripdata*.csv"], 
+      "entryPoint": "s3://'${s3Bucket}'/NYCTaxiCount.py","entryPointArguments":["s3://dask-data/nyc-taxi/2015/*.csv"], 
       "sparkSubmitParameters": "--conf spark.driver.memory=1G --conf spark.driver.cores=1 --conf spark.executor.memory=6G --conf spark.executor.cores=1"}}' \
   --configuration-overrides='{
   	"applicationConfiguration": [
