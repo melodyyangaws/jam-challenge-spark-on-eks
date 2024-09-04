@@ -80,11 +80,8 @@
                 "iam:GetServiceLinkedRoleDeletionStatus",
                 "iam:ListPolicyVersions",
                 "iam:ListAttachedRolePolicies",
-                "iam:UpdateRole",
-                "iam:CreatePolicyVersion",
                 "iam:ListRolePolicies",
-                "iam:GetRolePolicy",
-                "iam:AttachRolePolicy"
+                "iam:GetRolePolicy"
             ],
             "Resource": [
                 "arn:aws:iam::*:policy/*",
