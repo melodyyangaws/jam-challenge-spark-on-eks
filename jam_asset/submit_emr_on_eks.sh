@@ -10,7 +10,7 @@ aws emr-containers start-job-run \
   --job-driver '{
     "sparkSubmitJobDriver": {
       "entryPoint": "s3://'${s3Bucket}'/NYCTaxiCount.py","entryPointArguments":["s3://dask-data/nyc-taxi/2015/*.csv"], 
-      "sparkSubmitParameters": "--conf spark.driver.memory=1G --conf spark.driver.cores=1 --conf spark.executor.memory=6G --conf spark.executor.cores=1"}}' \
+      "sparkSubmitParameters": "--conf spark.driver.memory=1G --conf spark.driver.cores=1 --conf spark.executor.memory=8G --conf spark.executor.cores=1"}}' \
   --configuration-overrides='{
   	"applicationConfiguration": [
       {
@@ -19,7 +19,9 @@ aws emr-containers start-job-run \
           "spark.dynamicAllocation.enabled":"true",
           "spark.dynamicAllocation.shuffleTracking.enabled":"true",
           "spark.dynamicAllocation.maxExecutors":"20",
-          "spark.kubernetes.allocation.batch.size": "10"
+          "spark.kubernetes.allocation.batch.size": "10",
+          "spark.kubernetes.container.image.pullPolicy": "IfNotPresent",
+          "spark.kubernetes.driver.label.lifecycle": "OnDemand"
         }
       }
     ]

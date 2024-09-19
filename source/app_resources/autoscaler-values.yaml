@@ -2,7 +2,7 @@ autoDiscovery:
     clusterName: {{cluster_name}}
 awsRegion: {{region_name}}
 image:
-    tag: v1.21.1
+    tag: v1.29.1
 nodeSelector:
     app: spark    
 podAnnotations:
@@ -10,7 +10,6 @@ podAnnotations:
 extraArgs:
     skip-nodes-with-system-pods: false
     scale-down-unneeded-time: 30s
-    scale-down-unready-time: 1m
 rbac:
     serviceAccount:
         create: false

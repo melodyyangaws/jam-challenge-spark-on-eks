@@ -25,26 +25,19 @@ kubectl patch configmap/$argo_cm -n argo -p '{ "data": { "config": "containerRun
 # 4. Install Jupyter hub in EKS cluster
 curl https://raw.githubusercontent.com/helm/helm/HEAD/scripts/get-helm-3 | bash
 helm version
-# helm repo add jupyterhub https://jupyterhub.github.io/helm-chart
-# helm repo update
-# download config files from JAM
-# wget https://aws-jam-challenge-resources.s3.amazonaws.com/spark-on-eks-made-easy/jupyter-values.yaml
 
-# replace variables
-# export AWS_REGION=$(aws configure get region)
-# export app_code_bucket=$(aws cloudformation describe-stacks --stack-name $stack_name --query "Stacks[0].Outputs[?OutputKey=='CODEBUCKET'].OutputValue" --output text)
-# if [[ "$OSTYPE" == "darwin"* ]]; then
-#   sed -i '' -e 's|{{codeBucket}}|"'$app_code_bucket'"|g' jupyter-values.yaml
-#   sed -i '' -e 's|{{region}}|"'$AWS_REGION'"|g' jupyter-values.yaml
-# else
-#   sed -i -e 's|{{codeBucket}}|"'$app_code_bucket'"|g' jupyter-values.yaml
-#   sed -i -e 's|{{region}}|"'$AWS_REGION'"|g' jupyter-values.yaml
-# fi
 
-# install
-# helm install jhub jupyterhub/jupyterhub --values jupyter-values.yaml --version 3.0.0 -n jupyter  --create-namespace=False --debug
+# 5. Set the output S3 bucket path to Athena workgroup
+export AWS_REGION=$(curl -s 169.254.169.254/latest/dynamic/instance-identity/document | jq -r '.region')
+app_code_bucket=$(aws s3api list-buckets  --query 'Buckets[?starts_with(Name,`sparkoneks-appcode`)==`true`].Name' --output text)
+echo "athena result S3 bucket is ${app_code_bucket}"
+aws athena update-work-group \
+--region ${AWS_REGION} \
+--work-group primary \
+--configuration-updates "EnforceWorkGroupConfiguration=true,ResultConfigurationUpdates={OutputLocation=s3://"${app_code_bucket}"/athena-query-result/}"
 
-# 5. get Jupyter Hub login
+
+# 6. get Jupyter Hub login
 SEC_ID=$(aws secretsmanager list-secrets --query "SecretList[?not_null(Tags[?Value=='$stack_name'])].Name" --output text)
 URI=$(kubectl get ingress -n jupyter  -o json | jq '.items[0].status.loadBalancer.ingress[0].hostname')
 LOGIN=$(aws secretsmanager get-secret-value --secret-id $SEC_ID --query SecretString --output text)

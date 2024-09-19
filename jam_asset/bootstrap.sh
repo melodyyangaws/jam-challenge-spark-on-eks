@@ -4,10 +4,6 @@
 # installing prerequisites
 yum update -y
 yum install -y jq
-# yum remove -y awscli
-# curl "https://awscli.amazonaws.com/awscli-exe-linux-x86_64.zip" -o "awscliv2.zip"
-# unzip awscliv2.zip
-# ./aws/install --bin-dir /usr/bin --install-dir /usr/local/aws-cli --update
 mkdir -p /tmp/
 
 rm -vf ${HOME}/.aws/credentials
@@ -41,22 +37,15 @@ result=$(aws cloud9 create-environment-ec2 \
 echo "cloud9 env $result is created"
 
 
-# Deploy CFN
+# Deploy CFN via CDK
 export BUCKET_NAME=sparklab-$ACCOUNT_ID-$AWS_REGION
-# Download CDK source code to the s3 bucket
+aws iam create-service-linked-role --aws-service-name eks-nodegroup.amazonaws.com
+
 aws cloudformation deploy \
 --stack-name SparkOnEKS \
 --template-file /tmp/SparkOnEKS.template \
 --s3-bucket $BUCKET_NAME \
 --region $AWS_REGION \
 --capabilities CAPABILITY_NAMED_IAM
-
-# Set the output S3 bucket in Athena
-app_code_bucket=$(aws s3api list-buckets  --query 'Buckets[?starts_with(Name,`sparkoneks-appcode`)==`true`].Name' --output text)
-echo "athena result S3 bucket is ${app_code_bucket}"
-aws athena update-work-group \
---region ${AWS_REGION} \
---work-group primary \
---configuration-updates "EnforceWorkGroupConfiguration=true,ResultConfigurationUpdates={OutputLocation=s3://"${app_code_bucket}"/athena-query-result/}"
 
 echo "Done"
