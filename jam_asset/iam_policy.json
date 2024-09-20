@@ -23,7 +23,8 @@
             "Sid": "SecretManager1",
             "Effect": "Allow",
             "Action": [
-                "secretsmanager:ListSecrets"
+                "secretsmanager:ListSecrets",
+                "autoscaling:DescribeScalingActivities"
             ],
             "Resource": "*"
         },
