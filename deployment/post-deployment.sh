@@ -42,6 +42,7 @@ SEC_ID=$(aws secretsmanager list-secrets --query "SecretList[?not_null(Tags[?Val
 URI=$(aws elbv2 describe-load-balancers --query 'LoadBalancers[?contains(LoadBalancerName, `k8s-jupyter`) == `true`].DNSName' --output text)
 LOGIN=$(aws secretsmanager get-secret-value --secret-id $SEC_ID --query SecretString --output text)
 echo -e "\n=============================== Jupyter Notebook Login =============================================="
-echo -e "\nGo to your web browser and type in the Jupyter notebook URL: $URI"
-echo "LOGIN: $LOGIN" 
+echo -e "\nGo to your web browser and type in the Jupyter notebook URL: "
+echo -e "\n$URI"
+echo "\nLOGIN: $LOGIN" 
 echo "================================================================================================"
