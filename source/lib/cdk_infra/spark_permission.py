@@ -44,7 +44,8 @@ class SparkOnEksSAConst(Construct):
                     "labels": {"name":"spark"}
                 }
             }
-        )    
+        )
+        jupyter_ns.node.add_dependency(etl_ns)
     
         # create k8s service account
         self._etl_sa = eks_cluster.add_service_account('ETLSa', 
@@ -87,6 +88,7 @@ class SparkOnEksSAConst(Construct):
             namespace='spark'
         )
         self._spark_sa.node.add_dependency(etl_ns)
+        self._spark_sa.node.add_dependency(_etl_rb)
 
         _spark_rb = eks_cluster.add_manifest('sparkRoleBinding',
             load_yaml_replace_var_local(source_dir+'/app_resources/native-spark-rbac.yaml',
@@ -95,16 +97,17 @@ class SparkOnEksSAConst(Construct):
                 })
         )
         _spark_rb.node.add_dependency(self._spark_sa)
+        _spark_rb.node.add_dependency(_etl_rb)
 
         _native_spark_iam = load_yaml_replace_var_local(source_dir+'/app_resources/native-spark-iam-role.yaml',fields=_bucket_setting)
         for statmnt in _native_spark_iam:
             self._spark_sa.add_to_principal_policy(iam.PolicyStatement.from_json(statmnt))
 
-        ########################################
-        #######                          #######
-        #######     EMR on EKS Assets    #######
-        #######                          #######
-        ########################################
+        #######################################
+        ######                          #######
+        ######     EMR on EKS Assets    #######
+        ######                          #######
+        #######################################
         _emr_01_name = "emr"
         emr_ns = eks_cluster.add_manifest('EMRNamespace',{
                 "apiVersion": "v1",
@@ -114,7 +117,8 @@ class SparkOnEksSAConst(Construct):
                     "labels": {"name": _emr_01_name}
                 }
             }
-        ) 
+        )
+        emr_ns.node.add_dependency(_spark_rb)
         # k8s rbac for EMR on EKS
         _emr_rb = KubernetesManifest(self,'EMRRoleBinding',
             cluster=eks_cluster,
@@ -171,5 +175,5 @@ class SparkOnEksSAConst(Construct):
             ),
             name="emr-on-eks-demo"
         )
-        self.emr_vc.node.add_dependency(self._emr_exec_role)
+        # self.emr_vc.node.add_dependency(self._emr_exec_role)
         self.emr_vc.node.add_dependency(_emr_rb)     

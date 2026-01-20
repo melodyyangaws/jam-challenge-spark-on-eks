@@ -4,7 +4,7 @@
 from aws_cdk import (aws_eks as eks,aws_ec2 as ec2)
 from aws_cdk.aws_iam import IRole
 from constructs import Construct
-from aws_cdk.lambda_layer_kubectl_v29 import KubectlV29Layer
+from aws_cdk.lambda_layer_kubectl_v34 import KubectlV34Layer
 
 class EksConst(Construct):
 
@@ -22,15 +22,16 @@ class EksConst(Construct):
                 cluster_name=eksname,
                 masters_role=eks_adminrole,
                 output_cluster_name=True,
-                version= eks.KubernetesVersion.V1_29,
+                version = eks.KubernetesVersion.V1_34,
                 endpoint_access= eks.EndpointAccess.PUBLIC_AND_PRIVATE,
                 default_capacity=0,
-                kubectl_layer=KubectlV29Layer(self, 'kubectl')
+                kubectl_layer=KubectlV34Layer(self, 'kubectl')
         )
 
         # 2.Add Managed NodeGroup to EKS, compute resource to run Spark jobs
         self._my_cluster.add_nodegroup_capacity('onDemand-mn',
             nodegroup_name = 'etl-ondemand',
+            ami_type = eks.NodegroupAmiType.AL2023_X86_64_STANDARD,
             node_role = noderole,
             desired_size = 1,
             max_size = 30,
@@ -45,6 +46,7 @@ class EksConst(Construct):
         # 3. Add Spot managed NodeGroup to EKS (Run Spark exectutor on spot)
         self._my_cluster.add_nodegroup_capacity('spot-mn',
             nodegroup_name = 'etl-spot',
+            ami_type=eks.NodegroupAmiType.AL2023_X86_64_STANDARD,
             capacity_type=eks.CapacityType.SPOT,
             node_role = noderole,
             desired_size = 1,

@@ -39,7 +39,7 @@ aws athena update-work-group \
 
 # 6. get Jupyter Hub login
 SEC_ID=$(aws secretsmanager list-secrets --query "SecretList[?not_null(Tags[?Value=='$stack_name'])].Name" --output text)
-URI=$(kubectl get ingress -n jupyter  -o json | jq '.items[0].status.loadBalancer.ingress[0].hostname')
+URI=$(aws elbv2 describe-load-balancers --query 'LoadBalancers[?contains(LoadBalancerName, `k8s-jupyter`) == `true`].DNSName' --output text)
 LOGIN=$(aws secretsmanager get-secret-value --secret-id $SEC_ID --query SecretString --output text)
 echo -e "\n=============================== Jupyter Notebook Login =============================================="
 echo -e "\nGo to your web browser and type in the Jupyter notebook URL: $URI"

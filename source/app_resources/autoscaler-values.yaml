@@ -2,7 +2,7 @@ autoDiscovery:
     clusterName: {{cluster_name}}
 awsRegion: {{region_name}}
 image:
-    tag: v1.29.1
+    tag: v1.34.0
 nodeSelector:
     app: spark    
 podAnnotations:

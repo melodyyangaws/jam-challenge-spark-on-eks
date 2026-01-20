@@ -1,13 +1,14 @@
 # image:
 #   tag: v1beta2-1.2.3-3.1.1
-serviceAccounts:
-  spark:
+spark:
+  jobNamespaces: []
+  serviceAccount:
     create: false
-  sparkoperator:
+controller:    
+  serviceAccount:
     create: true  
 metrics:
   enable: false
 webhook:
   enable: true
   port: 443
-   
