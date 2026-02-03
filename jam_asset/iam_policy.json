@@ -42,15 +42,13 @@
             "Sid": "EMRPermissions",
             "Effect": "Allow",
             "Action": [
-                "emr-containers:ListVirtualClusters",
-                "emr-containers:DescribeVirtualCluster",
-              	"emr-containers:StartJobRun",
-                "emr-containers:ListJobRuns",
-                "emr-containers:DescribeJobRun",
-                "emr-containers:CancelJobRun",
-                "elasticmapreduce:CreatePersistentAppUI",
-                "elasticmapreduce:DescribePersistentAppUI",
-                "elasticmapreduce:GetPersistentAppUIPresignedURL"
+              "emr-containers:ListVirtualClusters",
+              "emr-containers:DescribeVirtualCluster",
+              "emr-containers:ListJobRuns",
+              "emr-containers:DescribeJobRun",
+              "elasticmapreduce:DescribePersistentAppUI",
+              "elasticmapreduce:GetPersistentAppUIPresignedURL",
+              "elasticmapreduce:CreatePersistentAppUI"
             ],
             "Resource": "*"
         },

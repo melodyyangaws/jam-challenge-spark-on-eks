@@ -15,7 +15,7 @@ rules:
     verbs: ["list", "get", "watch"]
   - apiGroups: [""]
     resources: ["persistentvolumeclaims"]
-    verbs: ["create", "delete", "get", "list"]
+    verbs: ["create", "delete", "get", "list", "deletecollection"]
   - apiGroups: ["argoproj.io"]
     resources: ["workflows","workflows/finalizers"]
     verbs: ["*"]

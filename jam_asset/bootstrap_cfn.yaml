@@ -316,9 +316,6 @@ Resources:
               - emr-containers:ListJobRuns
               - emr-containers:DescribeJobRun
               - emr-containers:CancelJobRun
-              - elasticmapreduce:CreatePersistentAppUI
-              - elasticmapreduce:DescribePersistentAppUI
-              - elasticmapreduce:GetPersistentAppUIPresignedURL
             Resource: '*'
           - Effect: Allow
             Action:

@@ -14,5 +14,3 @@ rbac:
     serviceAccount:
         create: false
         name: cluster-autoscaler
-
-  
