@@ -32,6 +32,7 @@ class EksConst(Construct):
         self._my_cluster.add_nodegroup_capacity('onDemand-mn',
             nodegroup_name = 'etl-ondemand',
             ami_type = eks.NodegroupAmiType.AL2023_X86_64_STANDARD,
+            capacity_type=eks.CapacityType.ON_DEMAND,
             node_role = noderole,
             desired_size = 1,
             max_size = 30,

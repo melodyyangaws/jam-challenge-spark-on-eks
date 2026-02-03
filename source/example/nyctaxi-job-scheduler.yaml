@@ -24,6 +24,6 @@ spec:
             - name: tags
               value: "project=sqlbasedetl owner=myowner costcenter=66666" 
             - name: configUri
-              value: https://raw.githubusercontent.com/tripl-ai/arc-starter/master/examples/kubernetes/nyctaxi.ipynb
+              value: https://aws-jam-challenge-resources.s3.amazonaws.com/spark-on-eks-made-easy/nyctaxi-job.ipynb
             - name: parameters
-              value: "--ETL_CONF_DATA_URL=s3a://dask-data/nyc-taxi/2015 --ETL_CONF_JOB_URL=https://raw.githubusercontent.com/tripl-ai/arc-starter/master/examples/kubernetes"
+              value: "--ETL_CONF_DATA_URL=https://aws-jam-challenge-resources.s3.amazonaws.com/spark-on-eks-made-easy/yellow_tripdata_2021-01.parquet"

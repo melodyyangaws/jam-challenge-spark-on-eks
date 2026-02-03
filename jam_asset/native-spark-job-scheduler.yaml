@@ -6,14 +6,13 @@ metadata:
 spec:
   type: Python
   mode: cluster
-  image: ghcr.io/tripl-ai/arc:arc_3.11.1_spark_3.1.2_scala_2.12_hadoop_3.2.0_1.0.0
+  image: public.ecr.aws/data-on-eks/spark:3.5.3-scala2.12-java17-python3-ubuntu
   mainApplicationFile: "s3a://$(BUCKET_PARAM)/app_code/job/NYCTaxiCount.py"
-  arguments: ["s3a://dask-data/nyc-taxi/2015/*.csv"]
-  sparkVersion: "3.1.2"
+  arguments: ["s3a://$(BUCKET_PARAM)/data/*.parquet"]
+  sparkVersion: "3.5.3"
   sparkConf:
     "spark.hadoop.fs.s3a.impl": "org.apache.hadoop.fs.s3a.S3AFileSystem"
-    "spark.hadoop.fs.s3a.aws.credentials.provider": "com.amazonaws.auth.WebIdentityTokenCredentialsProvider"
-    "spark.kubernetes.allocation.batch.size": "10"
+    "spark.hadoop.fs.s3a.aws.credentials.provider": "software.amazon.awssdk.auth.credentials.WebIdentityTokenFileCredentialsProvider"
     "spark.kubernetes.driver.label.lifecycle": "OnDemand"
   dynamicAllocation:
     enabled: true

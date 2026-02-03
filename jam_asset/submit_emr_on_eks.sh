@@ -6,10 +6,10 @@ aws emr-containers start-job-run \
   --virtual-cluster-id $VIRTUAL_CLUSTER_ID \
   --name nyc-taxi-vendor-count \
   --execution-role-arn $EMR_EXECUTION_ROLE_ARN \
-  --release-label emr-6.10.0-latest \
+  --release-label emr-7.7.0-latest \
   --job-driver '{
     "sparkSubmitJobDriver": {
-      "entryPoint": "s3://'${s3Bucket}'/NYCTaxiCount.py","entryPointArguments":["s3://dask-data/nyc-taxi/2015/*.csv"], 
+      "entryPoint": "s3://'${s3Bucket}'/NYCTaxiCount.py","entryPointArguments":["s3://'${s3Bucket}'/data/*.parquet"], 
       "sparkSubmitParameters": "--conf spark.driver.memory=1G --conf spark.driver.cores=1 --conf spark.executor.memory=8G --conf spark.executor.cores=1"}}' \
   --configuration-overrides='{
   	"applicationConfiguration": [
@@ -19,10 +19,20 @@ aws emr-containers start-job-run \
           "spark.dynamicAllocation.enabled":"true",
           "spark.dynamicAllocation.shuffleTracking.enabled":"true",
           "spark.dynamicAllocation.maxExecutors":"20",
-          "spark.kubernetes.allocation.batch.size": "10",
           "spark.kubernetes.container.image.pullPolicy": "IfNotPresent",
           "spark.kubernetes.driver.label.lifecycle": "OnDemand"
         }
-      }
+      },
+      {
+        "classification": "emr-containers-defaults",
+        "properties": {
+          "executor.logging": "DISABLED"
+      }},
+      {
+        "classification": "emr-job-submitter",
+        "properties": {
+            "jobsubmitter.container.image.pullPolicy": "IfNotPresent",
+            "jobsubmitter.logging": "DISABLED"
+      }}
     ]
   }'

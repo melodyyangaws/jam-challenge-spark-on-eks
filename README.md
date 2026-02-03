@@ -11,7 +11,7 @@ cd jam-challenge-spark-on-eks
 export BUCKET_NAME_PREFIX=aws-jam-challenge-resources
 export SOLUTION_NAME=spark-on-eks-made-easy
 ./deployment/build-s3-dist.sh $BUCKET_NAME_PREFIX $SOLUTION_NAME
-
+# search all of output templates if any memorySize of lambda function is over 512, reduce it to 512. In the same Lambda function, change the pytho3.13 to 3.12.
 ########################################################
 # copy CFN templates to the jam's s3 bucket
 cd deployment/global-s3-assets/

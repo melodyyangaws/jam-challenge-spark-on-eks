@@ -1,8 +1,8 @@
 AWSTemplateFormatVersion: 2010-09-09
 Parameters:
   LatestAmiId:
-    Type: 'AWS::SSM::Parameter::Value<AWS::EC2::Image::Id>'
-    Default: '/aws/service/cloud9/amis/amazonlinux-2-x86_64'
+    Type: "AWS::SSM::Parameter::Value<AWS::EC2::Image::Id>"
+    Default: "/aws/service/ami-amazon-linux-latest/al2023-ami-kernel-default-x86_64"
   InstanceType:
     Description: EC2 instance type
     Type: String
@@ -33,7 +33,6 @@ Resources:
       Tags:
         - Key: Name
           Value: !Ref EnvironmentName
-
   InternetGateway:
     Type: AWS::EC2::InternetGateway
     Properties:
@@ -97,8 +96,30 @@ Resources:
       RouteTableId: !Ref PublicRouteTable
       SubnetId: !Ref PublicSubnet2
 
+  SparklabInstance:
+    Type: 'AWS::EC2::Instance'
+    Properties:
+      UserData: 
+        Fn::Base64: !Sub |
+          #!/bin/bash
+          set -x
+          # Set environment variables for SSM sessions
+          export ACCOUNT_ID=${AWS::AccountId}
+          export AWS_REGION=${AWS::Region}
+          echo "export ACCOUNT_ID=${AWS::AccountId}" > /etc/profile.d/aws-env.sh
+          echo "export AWS_REGION=${AWS::Region}" >> /etc/profile.d/aws-env.sh
+          chmod +x /etc/profile.d/aws-env.sh
+          aws configure set default.region ${AWS::Region}
+      InstanceType: !Ref InstanceType
+      IamInstanceProfile: !Ref LabUserInstanceProfile
+      ImageId: !Ref LatestAmiId
+      SubnetId: !Ref PublicSubnet2
+      Tags: 
+        - Key: "Name"
+          Value: "sparklab"
   Bootstrapper:
     Type: 'AWS::EC2::Instance'
+    # DependsOn: SparklabInstance
     CreationPolicy:
       ResourceSignal:
         Timeout: PT1H1M1S
@@ -106,14 +127,15 @@ Resources:
       UserData: 
         Fn::Base64: !Sub |
           #!/bin/bash
-          yum install -y aws-cfn-bootstrap
-          pip3 install awscli --upgrade --user
-          export PATH=~/.local/bin:$PATH
+          set -x
+          echo "Install CloudFormation helper scripts for AL2023"
+          dnf install -y python3-pip
+          pip3 install https://s3.amazonaws.com/cloudformation-examples/aws-cfn-bootstrap-py3-latest.tar.gz
           /opt/aws/bin/cfn-init -v --stack ${AWS::StackName} --resource Bootstrapper --region ${AWS::Region}
           mkdir -p /tmp/
           wget https://aws-jam-challenge-resources-${AWS::Region}.s3.amazonaws.com/spark-on-eks-made-easy/bootstrap.sh -P /tmp/
           wget https://aws-jam-challenge-resources-${AWS::Region}.s3.amazonaws.com/spark-on-eks-made-easy/SparkOnEKS.template -P /tmp/
-          /bin/bash /tmp/bootstrap.sh
+          /bin/bash /tmp/bootstrap.sh ${AWS::Region}
           /opt/aws/bin/cfn-signal -e $? --stack ${AWS::StackName} --resource Bootstrapper --region ${AWS::Region}
       InstanceType: !Ref InstanceType
       IamInstanceProfile: !Ref RootInstanceProfile
@@ -125,7 +147,7 @@ Resources:
   RootRole:
     Type: 'AWS::IAM::Role'
     Properties:
-      RoleName: RootRole
+      RoleName: !Sub ${EnvironmentName}-RootRole
       AssumeRolePolicyDocument:
         Version: 2012-10-17
         Statement:
@@ -133,21 +155,48 @@ Resources:
             Principal:
               Service:
               - ec2.amazonaws.com
+              - ssm.amazonaws.com
             Action:
               - 'sts:AssumeRole'
       Path: /
       ManagedPolicyArns:
         - !Ref BootStrapPolicy
+        - arn:aws:iam::aws:policy/AmazonSSMManagedInstanceCore 
   RootInstanceProfile:
     Type: 'AWS::IAM::InstanceProfile'
     Properties:
+      InstanceProfileName: !Sub ${EnvironmentName}-RootInstanceProfile
       Path: /
       Roles:
         - !Ref RootRole
+  EC2IdeRole:      
+    Type: AWS::IAM::Role
+    UpdateReplacePolicy: Retain
+    DeletionPolicy: Delete
+    Properties:
+      Description: "IAM role for IDE EC2 instance with SSM permissions"
+      AssumeRolePolicyDocument:
+        Version: 2012-10-17
+        Statement:
+          - Effect: Allow
+            Principal:
+              Service:
+                - ec2.amazonaws.com
+                - ssm.amazonaws.com
+            Action:
+              - "sts:AssumeRole"    
+      ManagedPolicyArns:
+        - !Ref LabUserPolicy
+        - arn:aws:iam::aws:policy/AmazonSSMManagedInstanceCore
+  LabUserInstanceProfile:
+    Type: AWS::IAM::InstanceProfile
+    Properties:
+      Roles:
+        - !Ref EC2IdeRole
   LabBucket:
     Type: "AWS::S3::Bucket"
     Properties: 
-      BucketName: !Sub 'sparklab-${AWS::AccountId}-${AWS::Region}'
+      BucketName: !Sub sparklab-${AWS::AccountId}-${AWS::Region}
       BucketEncryption:
         ServerSideEncryptionConfiguration:
           - ServerSideEncryptionByDefault:
@@ -159,7 +208,7 @@ Resources:
         Status: Enabled
       LoggingConfiguration:
         # access logs for this bucket will be stored in the same bucket
-        LogFilePrefix: !Sub 'sparklab-${AWS::AccountId}-${AWS::Region}' 
+        LogFilePrefix: !Sub sparklab-${AWS::AccountId}-${AWS::Region}
   LogWriteBucketPolicy:
     Type: AWS::S3::BucketPolicy
     Properties:
@@ -173,10 +222,10 @@ Resources:
                 - logging.s3.amazonaws.com
             Action:
               - s3:PutObject
-            Resource: !Sub 'arn:aws:s3:::sparklab-${AWS::AccountId}-${AWS::Region}/AWSLogs/*'
+            Resource: !Sub arn:aws:s3:::sparklab-${AWS::AccountId}-${AWS::Region}/AWSLogs/*
             Condition:
               ArnLike:
-                aws:SourceArn: !Sub 'arn:aws:s3:::sparklab-${AWS::AccountId}-${AWS::Region}'
+                aws:SourceArn: !Sub arn:aws:s3:::sparklab-${AWS::AccountId}-${AWS::Region}
               StringEquals:
                 aws:SourceAccount: !Ref AWS::AccountId           
   CDCDatabase:
@@ -228,6 +277,106 @@ Resources:
       Tags:
         - Key: Name
           Value: VPC Flow Logs CloudWatch
+  LabUserPolicy:
+    Type: AWS::IAM::ManagedPolicy
+    Properties:
+      ManagedPolicyName: !Join ["-", ["LabUserPolicy", !Select [0, !Split ["-", !Ref "AWS::StackName"]]]]
+      Description: A custom policy for the Lab Users that is only used for the IDE environment.
+      PolicyDocument:
+        Version: "2012-10-17"
+        Statement:
+          - Effect: Allow
+            Action:
+              - eks:ListNodegroups
+              - eks:DescribeNodegroup
+              - eks:ListUpdates
+              - eks:DescribeUpdate
+              - eks:DescribeCluster
+              - eks:ListClusters
+              - eks:AccessKubernetesApi
+            Resource:
+              - arn:aws:eks:*:*:nodegroup/spark-on-eks/*
+              - arn:aws:eks:*:*:cluster/spark-on-eks
+              - arn:aws:eks:*:*:addon/spark-on-eks/*
+          - Effect: Allow
+            Action:
+              - secretsmanager:ListSecrets
+              - autoscaling:DescribeScalingActivities
+            Resource: '*'
+          - Effect: Allow
+            Action:
+              - secretsmanager:GetSecretValue
+            Resource:
+              - arn:aws:secretsmanager:*:*:secret:jHubPwd*
+          - Effect: Allow
+            Action:
+              - emr-containers:ListVirtualClusters
+              - emr-containers:DescribeVirtualCluster
+              - emr-containers:StartJobRun
+              - emr-containers:ListJobRuns
+              - emr-containers:DescribeJobRun
+              - emr-containers:CancelJobRun
+              - elasticmapreduce:CreatePersistentAppUI
+              - elasticmapreduce:DescribePersistentAppUI
+              - elasticmapreduce:GetPersistentAppUIPresignedURL
+            Resource: '*'
+          - Effect: Allow
+            Action:
+              - glue:CreateDatabase
+              - glue:GetDatabase
+              - glue:GetDatabases
+              - glue:CreateTable
+              - glue:GetTable
+              - glue:GetTables
+              - glue:GetCatalogImportStatus
+            Resource:
+              - arn:aws:glue:*:*:catalog
+              - arn:aws:glue:*:*:database/default
+              - arn:aws:glue:*:*:table/default/*
+          - Effect: Allow
+            Action:
+              - s3:ListBucket
+              - s3:GetObject
+              - s3:PutObject
+              - s3:GetBucketLocation
+            Resource:
+              - arn:aws:s3:::sparkoneks-appcode*
+          - Effect: Allow
+            Action:
+              - s3:ListAllMyBuckets
+            Resource: '*'
+          - Effect: Allow
+            Action:
+              - athena:StartQueryExecution
+              - athena:GetQueryExecution
+              - athena:GetQueryResults
+              - athena:GetWorkGroup
+              - athena:GetQueryRuntimeStatistics
+              - athena:StopQueryExecution
+              - athena:ListQueryExecutions
+              - athena:ListNamedQueries
+              - athena:UpdateWorkGroup
+            Resource:
+              - arn:aws:athena:*:*:workgroup/primary
+          - Effect: Allow
+            Action:
+              - sts:AssumeRole
+            Resource:
+              - !Sub arn:aws:iam::${AWS::AccountId}:role/SparkOnEKS*
+          - Effect: Allow
+            Action:
+              - elasticloadbalancing:DescribeLoad*
+            Resource:
+              - '*'
+          - Effect: Allow
+            Action:
+              - cloudformation:DescribeStacks
+            Resource:
+              - !Sub arn:aws:cloudformation:${AWS::Region}:${AWS::AccountId}:stack/SparkOnEKS/*
+          - Effect: Allow
+            Action: iam:ListRoles
+            Resource: 
+              - !Sub arn:aws:iam::${AWS::AccountId}:role/*
   BootStrapPolicy:
     Type: AWS::IAM::ManagedPolicy
     Properties:
@@ -261,17 +410,16 @@ Resources:
               - !Sub arn:aws:cloudformation:${AWS::Region}:${AWS::AccountId}:stack/*
           - Effect: Allow
             Action: 
-              - cloud9:CreateEnvironmentEC2
-            Resource: "*"
-            Condition:
-              'Null':
-                'cloud9:OwnerArn': 'false'
+              - iam:ListInstanceProfiles 
+            Resource: 
+              - !Sub arn:aws:iam::${AWS::AccountId}:instance-profile/*      
           - Effect: Allow
             Action: iam:PassRole
             Resource: 
-              - !Sub arn:aws:iam::${AWS::AccountId}:role/AWSLabsUse*
-              - !Sub arn:aws:iam::${AWS::AccountId}:role/spark-on-eks-NodeInstanceRole
+              - !Sub arn:aws:iam::${AWS::AccountId}:role/AWSLabsUser*
+              - !Sub arn:aws:iam::${AWS::AccountId}:role/spark-on-eks-NodeInstanceRole*
               - !Sub arn:aws:iam::${AWS::AccountId}:role/SparkOnEKS*
+              - !Sub arn:aws:iam::${AWS::AccountId}:role/${EnvironmentName}-*
           - Effect: Allow
             Action: 
               - iam:CreateServiceLinkedRole
@@ -282,7 +430,6 @@ Resources:
                 iam:AWSServiceName:
                 - eks.amazonaws.com
                 - autoscaling.amazonaws.com
-                - cloud9.amazonaws.com
                 - elasticloadbalancing.amazonaws.com
                 - eks-nodegroup.amazonaws.com
                 - emr-containers.amazonaws.com
@@ -290,9 +437,6 @@ Resources:
             Action: 
               - ec2:Describe*
             Resource: "*"
-            Condition:
-              StringEquals:
-                aws:RequestedRegion: !Ref AWS::Region
           - Effect: Allow
             Action: 
               - ec2:RunInstances
@@ -310,6 +454,7 @@ Resources:
               - ec2:AttachInternetGateway
               - ec2:ModifySubnetAttribute
               - ec2:RevokeSecurityGroupEgress
+              - ec2:RevokeSecurityGroupIngress
               - ec2:AuthorizeSecurityGroupEgress
               - ec2:AssociateRouteTable
             Resource: 
@@ -344,7 +489,7 @@ Resources:
               - iam:Get*
               - iam:List*
             Resource:
-              - !Sub arn:aws:iam::${AWS::AccountId}:role/RootRole
+              - !Sub arn:aws:iam::${AWS::AccountId}:role/${EnvironmentName}-*
               - !Sub arn:aws:iam::${AWS::AccountId}:role/AWSLabsUser*
               - !Sub arn:aws:iam::${AWS::AccountId}:role/SparkOnEKS*
               - !Sub arn:aws:iam::${AWS::AccountId}:role/spark-on-eks*
@@ -414,6 +559,11 @@ Resources:
               - ssm:PutParameter
             Resource: 
               - !Sub arn:aws:ssm:${AWS::Region}:${AWS::AccountId}:parameter/*
+          - Effect: Allow
+            Action: 
+              - ssm:GetParameter 
+            Resource: 
+              - !Sub arn:aws:ssm:${AWS::Region}::parameter/aws/service/ami-*
           - Effect: Allow
             Action: 
               - emr-containers:TagResource
